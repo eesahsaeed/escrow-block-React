@@ -32,7 +32,9 @@ export default function RegisterIndividual() {
     expectedTransactionSizePerTrade: "",
     password: "",
     confirmPassword: ""
-  })
+  });
+  const [value, onChange] = useState(new Date());
+
   const navigate = useNavigate();
 
   const onChangeHandler = (e) => {

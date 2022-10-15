@@ -45,7 +45,7 @@ export default function HomeSectionSwiperEntry({ toPath, isRight, noBtn }) {
             market liquidity or order book discovery.
           </div>
           <div className="home__section__carousel__entry__overlay__content__para home__section__carousel__entry__overlay__content__para2">
-            Experience the peace of mind that come with having Escrowblock
+            Experience the peace of mind that comes with having Escrow Block
             manage your account. While you're working or sleeping, we'll be
             making money for you.
           </div>

@@ -1048,11 +1048,27 @@ input:-webkit-autofill:active {
 .login__container__left {
   padding: 2em;
   width: 50%;
-  flex-direction: column;
-  display: flex;
   justify-content: center;
   align-items: center;
 }
+
+.login-link{
+  color: #0d6efd;
+  text-decoration: underline;
+}
+
+.login-link:active{
+  color: #ffbc00;
+}
+
+.react-date-picker__wrapper{
+  border: none !important;
+}
+
+.react-tel-input .form-control{
+  border: 0px solid #CACACA !important;
+}
+
 .login__container__right {
   width: 50%;
   display: flex;

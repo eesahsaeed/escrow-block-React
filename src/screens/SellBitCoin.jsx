@@ -11,7 +11,7 @@ import { Convert } from "easy-currencies";
 import authHelper from "../helper/auth-helper";
 import { getUrl } from "../helper/url-helper";
 
-export default function SellBitCoin() {
+export default function SellBitCoin({setNoHeaderFooter}) {
   const [values, setValues] = useState({currency: "USD", paymentAmount: 0});
   const [symbol, setSymbol] = useState('$');
   const [selectCurrency, setSelectCurrency] = useState(false);
@@ -19,6 +19,13 @@ export default function SellBitCoin() {
   const [tempPrice, setTempPrice] = useState(0);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setNoHeaderFooter(false);
+    return () => {
+      setNoHeaderFooter(true);
+    };
+  }, []);
 
   useEffect(() => {
     if (!authHelper.isAuthenticated()){

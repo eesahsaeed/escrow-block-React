@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import InputBox from "../components/InputBox";
 import loginSvg from "../assets/loginSvg.svg";
+import telegram from "../assets/telegram.png";
 import { getUrl } from "../helper/url-helper";
 
 export default function Login({ setNoHeaderFooter }) {
@@ -13,9 +14,9 @@ export default function Login({ setNoHeaderFooter }) {
   })
 
   useEffect(() => {
-    setNoHeaderFooter(true);
+    setNoHeaderFooter(false);
     return () => {
-      setNoHeaderFooter(false);
+      setNoHeaderFooter(true);
     };
   }, []);
 
@@ -66,7 +67,7 @@ export default function Login({ setNoHeaderFooter }) {
       <div action="" className="login__container">
         <form action="" className="login__container__left">
           <div className="login__container__left__heading">
-            Log In With Escroblock
+            Log In With Escrowblock
           </div>
           <div className="register__section__forms__content">
             {errors && Object.keys(errors).length !== 0 && <div style={{
@@ -99,12 +100,12 @@ export default function Login({ setNoHeaderFooter }) {
               onChange={handleChange("password")}/>
           </div>
           <div className="login__links__wrapper register__section__forms__content__inputs__one">
-            <Link to="/forgot-password" className="login__forgot">
+            <Link to="/forgot-password" className="login-link">
               Forgot Password ?
             </Link>
           </div>
           <div
-            style={{ marginTop: 50 }}
+            style={{ margin: "20px 0" }}
             className="register__section__forms__content__btns"
           >
             <button
@@ -114,12 +115,15 @@ export default function Login({ setNoHeaderFooter }) {
             >
               Login
             </button>
-            <div style={{ color: "#000000" }} className="new__to__login">
-              New on Escrowblockh?
-              <span>
-                <Link to="/register"> Click here to Register</Link>
-              </span>
+            <div style={{marginTop: 30}}>
+              New on Escrowblock?{" "}
+              <Link className="login-link" to="/register">Click here to Sign Up</Link>
             </div>
+          </div>
+          <div>
+            <span>
+              Click the Telegram link for faster transaction <a href="https://msng.link/telegram.html"><img src={telegram} /></a>
+            </span>
           </div>
         </form>
         <div className="login__container__right">

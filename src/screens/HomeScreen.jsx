@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import HomeSectionSwiperEntry from "../components/HomeSectionSwiperEntry";
 import OTCPic1 from "../assets/OTCPic1.svg";
@@ -76,8 +77,17 @@ function SwipperCard(props) {
     </div>
   );
 }
-export default function HomeScreen() {
+
+export default function HomeScreen({setNoHeaderFooter}) {
   const [Data, setData] = useState([]);
+
+  useEffect(() => {
+    setNoHeaderFooter(false);
+    return () => {
+      setNoHeaderFooter(true);
+    };
+  }, []);
+
   useEffect(() => {
     coin();
   }, []);
@@ -127,7 +137,7 @@ export default function HomeScreen() {
           <div className="otc__trading__section__content__para">
             At Escrow Block we aim to make the process of trading crypto smooth
             and easy for our highly valued customers. Register today to gain
-            access to our amazing services
+            access to our amazing services.
           </div>
           <button className="button__secondary">Learn More</button>
           <div className="otc__trading__section__content__card__wrapper">

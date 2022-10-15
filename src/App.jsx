@@ -20,11 +20,12 @@ import Welcome from "./screens/Welcome";
 
 export default function App() {
   const [noHeaderFooter, setNoHeaderFooter] = useState(false);
+  
   return (
     <>
       {noHeaderFooter ? null : <Header />}
       <Routes>
-        <Route path="/" element={<HomeScreen />} />
+        <Route path="/" element={<HomeScreen setNoHeaderFooter={setNoHeaderFooter} />} />
         <Route
           path="/register"
           element={<Register setNoHeaderFooter={setNoHeaderFooter} />}
@@ -36,8 +37,8 @@ export default function App() {
         />
         <Route path="/trade-for-me" element={<TradeForMe />} />
         <Route path="/about-us" element={<AboutUs />} />
-        <Route path="/buy-bitcoin" element={<BuyBitCoin />} />
-        <Route path="/sell-bitcoin" element={<SellBitCoin />} />
+        <Route path="/buy-bitcoin" element={<BuyBitCoin  setNoHeaderFooter={setNoHeaderFooter}/>} />
+        <Route path="/sell-bitcoin" element={<SellBitCoin  setNoHeaderFooter={setNoHeaderFooter}/>} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/forex-training" element={<ForexTraning />} />
         <Route

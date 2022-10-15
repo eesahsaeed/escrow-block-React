@@ -2,6 +2,7 @@
 import React, {useState, useEffect} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import sellBictvoinSvg from "../assets/sellBictvoinSvg.svg";
+import telegram from "../assets/telegram.png";
 import bitcoin from "../assets/bitcoin.svg";
 import InputBox from "../components/InputBox";
 import SelectBox from "../components/SelectBox";
@@ -11,7 +12,7 @@ import {Convert} from "easy-currencies";
 import authHelper from "../helper/auth-helper";
 import {getUrl} from "../helper/url-helper";
 
-export default function BuyBitCoin() {
+export default function BuyBitCoin({setNoHeaderFooter}) {
   const [values, setValues] = useState({currency: "USD", paymentAmount: 0});
   const [symbol, setSymbol] = useState('$');
   const [selectCurrency, setSelectCurrency] = useState(false);
@@ -19,6 +20,13 @@ export default function BuyBitCoin() {
   const [tempPrice, setTempPrice] = useState(0);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setNoHeaderFooter(false);
+    return () => {
+      setNoHeaderFooter(true);
+    };
+  }, []);
 
   useEffect(() => {
     if (!authHelper.isAuthenticated()){
@@ -324,6 +332,11 @@ export default function BuyBitCoin() {
             onClick={handleClick}>
             Submit Offer Request
           </button>
+          <div style={{margin: "30px 0"}}>
+            <span>
+              Contact Us via Telegram For Quicker Transaction <a href="https://msng.link/telegram.html"><img src={telegram} /></a>
+            </span>
+          </div>
         </div>
         <div className="login__container__right">
           <img
