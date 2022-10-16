@@ -273,7 +273,7 @@ export default function RegisterIndividual() {
     gender: "Male",
     country: "",
     phoneNumber: "",
-    dateOfBirth: "",
+    dateOfBirth: new Date(),
     telegram: "",
     employmentStatus: "Employed",
     occupation: "Not Applicable",
@@ -544,11 +544,58 @@ export default function RegisterIndividual() {
                   </div>
                   <div className="input_container">
                     <InputField 
+                      name="phoneNumber"
+                      type="text" 
+                      onChange={onChangeHandler} 
+                      label="Phone Number"
+                    />
+                  </div>
+                  <div className="input_container">
+                    <InputField 
                       name="dateOfBirth"
                       type="date" 
                       onChange={onChangeHandler} 
                       label="Date Of Birth"
+                      value={values.dateOfBirth}
                     />
+                  </div>
+                  <div className="input_container">
+                    <InputField 
+                      name="password"
+                      type="password" 
+                      onChange={onChangeHandler} 
+                      label="Password"
+                      placeholder="Password"
+                    />
+                  </div>
+                  <div className="input_container">
+                    <InputField 
+                      name="confirmPassword"
+                      type="password" 
+                      onChange={onChangeHandler} 
+                      label="Confirm Password"
+                      placeholder="Confirm Password"
+                    />
+                  </div>
+                  <div className="check2">
+                    <InputField 
+                      name="checkbox1"
+                      type="checkbox" 
+                      onChange={onChangeHandler} 
+                      label="I'm over the 18 age and accept terms and conditions"
+                    />
+                  </div>
+                  <div className="check2">
+                    <InputField 
+                      name="checkbox2"
+                      type="checkbox" 
+                      onChange={onChangeHandler} 
+                      label="I would like to receive newsletter via Email"
+                    />
+                  </div>
+                  <div className="input_container" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+                    Already a user?{" "}<Link to="/login" className="login-link">Click here to Login</Link>
+                    <button className="button gap">Register Now</button>
                   </div>
                 </form>
               </div>
