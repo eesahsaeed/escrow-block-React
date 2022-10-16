@@ -46,12 +46,6 @@ export default function Welcome({setNoHeaderFooter}) {
                 style={{ marginRight: "1em" }}
                 to="/login"
                 className="button__secondary"
-                onClick={() => {
-                  window.scrollTo({
-                    top: 0,
-                    behavior: "smooth",
-                  });
-                }}
               >
                 Login
               </Link>

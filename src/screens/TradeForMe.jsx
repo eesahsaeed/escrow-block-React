@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import waveBG from "../assets/waveBg.svg";
 import ServiceCard from "../components/ServiceCard";
 
@@ -9,13 +9,19 @@ export default function TradeForMe() {
     <>
       <div className="register__section">
         <img src={waveBG} alt="waveBG" className="register__section__img" />
-        <div className="register__section__content">
+        <div className="register__section__content" style={{top: 50}}>
           <div
             style={{ color: "#000000" }}
             className="home__section__carousel__entry__overlay__content__heading"
           >
             Trade For Me
           </div>
+          <Link
+            to="/login"
+            className="button__secondary"
+          >
+            Login
+          </Link>
         </div>
       </div>
       <div className="register__section__forms">

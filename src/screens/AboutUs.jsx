@@ -5,102 +5,137 @@ import waveBG from "../assets/waveBg.svg";
 import AboutCards from "../components/AboutCards";
 import payments from "../assets/payments.svg";
 import international from "../assets/international.png";
+import aboutUs1 from "../assets/about_us_1.png";
+import aboutUs2 from "../assets/about_us_2.png";
+import aboutUs3 from "../assets/about_us_3.png";
 
-export default function AboutUs() {
+export default function AboutUs(){
   return (
     <>
       <div className="register__section">
-        <img src={waveBG} alt="waveBG" className="register__section__img" />
         <div className="register__section__content">
-          <div
-            style={{ color: "#000000" }}
-            className="home__section__carousel__entry__overlay__content__heading"
-          >
-            About Us
+          <div className="about_us_container">
+            WE ARE ESCROWBLOCK
           </div>
           <div
             style={{
               color: "#000000",
-              fontSize: 16,
-              width: "45%",
+              fontSize: 22,
+              width: "100%",
               textAlign: "center",
+              fontWeight: 400,
+              marginTop: -15
             }}
             className="home__section__carousel__entry__overlay__content__sub__heading"
           >
-            Escrow Block is a platform that enables customers to purchase Bitcoins at unbeatable prices
+            Escrowblock.com is a platform that enables customers to purchase Bitcoins at unbeatable prices
+          </div>
+        </div>
+      </div>
+      <div className="forex__management__section__content about_us_forex">
+        <div className="forex__management__section__content__left">
+          <img src={aboutUs1} style={{width: 450}}/>
+        </div>
+        <div className="forex__management__section__content__right about_us_para">
+          Escrowblock provides a secure trading environment which permits individuals and corporations to purchase cryptocurrency exclusively online. <br/>
+          Escrowblock started with a simple mission to empower the forgotten four billion unbanked and underbanked citizens of the world, so they have control of their money in a way they've never had before.
+        </div>
+      </div>
+      <div
+        style={{ marginTop: -50 }}
+        className="forex__management__section__content"
+      >
+        <div className="forex__management__section__content__right">
+          <div className="about_us_container_card">
+            <img
+              src={aboutUs2}
+              style={{ width: 160 }}
+              className=""
+            />
+            <p className="para_header">
+              PEOPLE DRIVEN
+            </p>
+            <p className="para_sub">
+              We think about people not profits because the more people in our community the more profit we make. We’re providing services for people the rest of the world has ignored and forgotten. We’re helping families to thrive, and enabling our users to become their own boss.
+            </p>
+          </div>
+        </div>
+        <div className="forex__management__section__content__right">
+          <div className="about_us_container_card">
+            <img
+              src={aboutUs3}
+              style={{ width: 160 }}
+              className=""
+            />
+            <p className="para_header">
+              24/7 Client Support
+            </p>
+            <p className="para_sub">
+              Escrowblock is there for you every step of the way. We offer 24/7 support via our telegram, online chat through the website, allowing clients to speak with any of our friendly and experienced customer service agents throughout the week.
+              <br/>
+              Whether you have questions or would just like to provide us with feedback regarding our services, we’re here for you.
+            </p>
           </div>
         </div>
       </div>
       <div
-        style={{ marginTop: 40 }}
+        style={{ marginTop: -50 }}
         className="forex__management__section__content"
       >
-        <div className="forex__management__section__content__left">
-          <div className="forex__management__section__content__left__heading">
-            BANKS PAYMENT SYSTEMS
-          </div>
-          <div className="forex__management__section__content__left__para">
-            Providing you with an AI-created portfolio, ease of use and setup
-            are ensured. Our payment systems also allow token value growth and
-            automatic pay-outs.
+        <div className="forex__management__section__content__right">
+          <div className="about_us_container_card">
+            <img
+              src={aboutUs2}
+              style={{ width: 160 }}
+              className=""
+            />
+            <p className="para_header">
+              STAY CONNECTED TO THE COMMUNITY
+            </p>
+            <p className="para_sub">
+              We listen to our community 24/7 at Escrowblock. We’re always talking with our users, asking them for their feedback, and creating something even better.
+            </p>
           </div>
         </div>
         <div className="forex__management__section__content__right">
-          <img
-            src={payments}
-            alt="payments"
-            className="forex__management__section__content__right__img"
-          />
+          <div className="about_us_container_card">
+            <img
+              src={aboutUs3}
+              style={{ width: 160 }}
+              className=""
+            />
+            <p className="para_header">
+              BANKS PAYMENT SYSTEMS
+            </p>
+            <p className="para_sub">
+              Providing you with an AI-created portfolio, ease of use and setup are ensured. Our payment systems also allow token value growth and automatic pay-outs.
+            </p>
+          </div>
         </div>
       </div>
       <div
-        style={{ marginTop: 40 }}
+        style={{ marginTop: -50 }}
         className="forex__management__section__content"
       >
         <div className="forex__management__section__content__right">
-          <img
-            src={international}
-            alt="international"
-            style={{ width: 300 }}
-            className="forex__management__section__content__right__img"
-          />
-        </div>
-        <div className="forex__management__section__content__left">
-          <div className="forex__management__section__content__left__heading">
-            DIGITAL CURRENCY EVOLUTION
-          </div>
-          <div className="forex__management__section__content__left__para">
-            Crypto-currencies are the future. We provide you with cutting-edge
-            tools to jump into the world of Bitcoin investment.
+          <div className="about_us_container_card">
+            <img
+              src={aboutUs3}
+              style={{ width: 160 }}
+              className=""
+            />
+            <p className="para_header">
+              DIGITAL CURRENCY EVOLUTION
+            </p>
+            <p className="para_sub">
+              Crypto-currencies are the future. We provide you with cutting-edge tools to jump into the world of Bitcoin investment.
+            </p>
           </div>
         </div>
-      </div>
-      <div style={{ marginBottom: 40 }} className="register__section__forms">
-        <div className="register__section__forms__content__services">
-          <AboutCards
-            title="ERC-20 UNIVERSAL STANDARD"
-            para="Ethereum Request for Comments, also known as ERCs, are application-level standards for Ethereum and can include token standards, name registries, library/package formats, and more. We use ERC-20 which is the standard API used for exchangeable tokens, including transfer and balance tracking functionalities."
-          />
-          <AboutCards
-            title="SMART CONTRACT MANAGEMENT"
-            para="Our digital contract is the key to automate processes, transactions, and agreements, helping to minimize costs, increase security and effectively eliminate paperwork."
-          />
-          <AboutCards
-            title="40 ICO FEATURES TO CHOOSE FROM"
-            para="With our wide range of ICO features, you can take your investment to the next level."
-          />
-          <AboutCards
-            title="FULLY SCALABLE"
-            para="Scalability is the capability of a cryptocurrency to cope with the flood of a large number of transactions at a time. Our optimizations ensure the scalability of Bitcoin."
-          />
-          <AboutCards
-            title="MARKETING SERVICE"
-            para="We provide an excellent marketing service, facilitating growth for your investment."
-          />
-          <AboutCards
-            title="ICO RESULT ANALYZE"
-            para="We provide expert ICO analysis and feedback, to help you succeed in your crypto-venture."
-          />
+        <div className="forex__management__section__content__right">
+          <div className="about_us_container_card">
+            
+          </div>
         </div>
       </div>
     </>

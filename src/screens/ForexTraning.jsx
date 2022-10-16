@@ -10,7 +10,7 @@ export default function ForexTraning() {
     <>
       <div className="register__section">
         <img src={waveBG} alt="waveBG" className="register__section__img" />
-        <div className="register__section__content">
+        <div className="register__section__content" style={{top: 0}}>
           <div
             style={{ color: "#000000" }}
             className="home__section__carousel__entry__overlay__content__heading"
@@ -26,7 +26,7 @@ export default function ForexTraning() {
             }}
             className="home__section__carousel__entry__overlay__content__sub__heading"
           >
-            Escrow Block is a platform that enables customers to purchase Bitcoins at unbeatable prices
+            Escrowblock.com is a platform that enables customers to purchase Bitcoins at unbeatable prices
           </div>
         </div>
       </div>
