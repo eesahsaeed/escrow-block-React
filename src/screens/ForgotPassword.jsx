@@ -60,7 +60,7 @@ export default function ForgotPassword({setNoHeaderFooter}) {
 
     async function handle(){
       setLoading(true);
-      
+
       try{
         let response = await fetch(`${getUrl()}/users/forgotPassword`, {
           method: "POST",
@@ -76,6 +76,8 @@ export default function ForgotPassword({setNoHeaderFooter}) {
 
         if (rs.success){
           setVerify(true)
+        } else if (rs.error){
+          setError(rs.error)
         }
       } catch(err){
         console.log(err);
