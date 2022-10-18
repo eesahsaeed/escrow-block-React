@@ -1,5 +1,5 @@
 
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {Route, Routes} from "react-router";
 import HomeScreen from "./screens/HomeScreen";
 import "./App.scss";
@@ -23,7 +23,7 @@ export default function App() {
   
   return (
     <>
-      {noHeaderFooter ? null : <Header />}
+      <Header />
       <Routes>
         <Route path="/" element={<HomeScreen setNoHeaderFooter={setNoHeaderFooter} />} />
         <Route
