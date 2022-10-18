@@ -24,9 +24,32 @@ function clearUser( cb ){
   }
 
   cb();
-  /*signout().then( ( data ) => {
-    document.cookie = "t=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
-  } );*/
 }
 
-export default { authenticate, isAuthenticated, clearUser };
+function setFirstForm(values){
+  localStorage.setItem("firstForm", JSON.stringify(values));
+}
+
+function isFirstDone(){
+  if (localStorage.getItem("firstForm")){
+    return JSON.parse(localStorage.getItem("firstForm")).firstForm;
+  }else{
+    return false;
+  }
+}  
+
+function getForm(){
+  if (localStorage.getItem("firstForm")){
+    return JSON.parse(localStorage.getItem("firstForm"));
+  }else{
+    return false;
+  }
+}
+
+function clearForm(){
+  if (typeof window !== "undefined"){
+    localStorage.removeItem("firstForm");
+  }
+}
+
+export default {authenticate, isAuthenticated, clearUser, setFirstForm, isFirstDone, clearForm, getForm};

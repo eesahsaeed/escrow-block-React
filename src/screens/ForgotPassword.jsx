@@ -1,26 +1,66 @@
 
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import waveBG from "../assets/waveBg.svg";
+import React, {useEffect, useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
 import InputBox from "../components/InputBox";
 import loginSvg from "../assets/loginSvg.svg";
-import { getUrl } from "../helper/url-helper";
+import {getUrl} from "../helper/url-helper";
+import {DotLoader} from "react-spinners";
 
-export default function ForgotPassword({ setNoHeaderFooter }) {
+const override = {
+  display: "block",
+  margin: "0 auto",
+  borderColor: "red",
+}
+
+export default function ForgotPassword({setNoHeaderFooter}) {
   const navigate = useNavigate();
   const [values, setValues] = useState({
     email: "",
     token: ""
   })
+  const [error, setError] = useState({
+    error: false,
+    errorMessage: ""
+  })
+
+  const [loading, setLoading] = useState(false);
+  const [color, setColor] = useState("#f5ca4e");
 
   const [verify, setVerify] = useState(false);
 
   const handleChange = name => event => {
+    setError({error: false, errorMessage: ""});
     setValues({...values, [name]: event.target.value});
   }
 
+  function validateEmail(){
+    let valid = true;
+
+    if (!values.email){
+      valid = false;
+      setError({error: true, errorMessage: "Please Enter Your Email Address"});
+    }
+
+    return valid;
+  }
+
+  function validateToken(){
+    let valid = true;
+
+    if (!values.token){
+      valid = false;
+      setError({error: true, errorMessage: "Please Enter Token"});
+    }
+
+    return valid;
+  }
+
   function handleClick(){
+    let valid = validateEmail();
+
     async function handle(){
+      setLoading(true);
+      
       try{
         let response = await fetch(`${getUrl()}/users/forgotPassword`, {
           method: "POST",
@@ -32,6 +72,8 @@ export default function ForgotPassword({ setNoHeaderFooter }) {
         })
 
         let rs = await response.json();
+        setLoading(false);
+
         if (rs.success){
           setVerify(true)
         }
@@ -40,11 +82,17 @@ export default function ForgotPassword({ setNoHeaderFooter }) {
       }
     }
 
-    handle();
+    if (valid){
+      handle();
+    }
   }
 
   function handleToken(){
+    let valid = validateToken();
+
     async function handle(){
+      setLoading(true);
+      
       try{
         let response = await fetch(`${getUrl()}/users/verifyToken`, {
           method: "POST",
@@ -56,6 +104,8 @@ export default function ForgotPassword({ setNoHeaderFooter }) {
         })
 
         let rs = await response.json();
+        setLoading(false);
+
         if (rs.success){
           navigate(`/new-password/${rs.email}/${rs.token}`)
         }
@@ -64,40 +114,57 @@ export default function ForgotPassword({ setNoHeaderFooter }) {
       }
     }
 
-    handle();
+    if (valid){
+      handle();
+    }
   }
 
   useEffect(() => {
-    setNoHeaderFooter(true);
+    setNoHeaderFooter(false);
     return () => {
-      setNoHeaderFooter(false);
+      setNoHeaderFooter(true);
     };
   }, []);
 
   return (
     <>
-      <div action="" className="login__container">
-        <div className="login__container__left">
+      <div className="login__container">
+        <div className="login__container__left" style={{position: "relative"}}>
+          {loading && <div className="loading-container-login">
+            <DotLoader
+              color={color}
+              loading={loading}
+              cssOverride={override}
+              size={150}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
+          </div>}
           <div className="login__container__left__heading">
             Reset your Password
           </div>
-          {verify && <h3>Please enter the 6 digit token emailed to you</h3>}
+          {verify && <div className="forgot-password-head">
+            <div>An email has been sent to <span className="blue-text">{values.email}</span></div>
+            <div>Please enter the 6 digit token</div>  
+          </div>}
 
           <form className="register__section__forms__content__inputs__one">
-            <InputBox
-              placeholder="Your Phone or Email"
-              required={true}
-              type="text"
-              onChange={handleChange("email")}/>
-            <InputBox
+            {verify ? <InputBox
               placeholder="Enter token"
               required={true}
-              type="text"
+              type="number"
               onChange={handleChange("token")}
-            />   
+            /> : <InputBox
+            placeholder="Enter Your Email"
+            required={true}
+            type="text"
+            onChange={handleChange("email")}/>} 
+            <div>
+              {error.error && <p style={{color: "red"}}>{error.errorMessage}</p>}  
+            </div> 
           </form>
 
-          <div style={{ marginTop: 50 }}
+          <div style={{ marginTop: 30 }}
             className="register__section__forms__content__btns">
             {verify ? <button
               style={{ padding: "1em 4em" }}
@@ -110,11 +177,12 @@ export default function ForgotPassword({ setNoHeaderFooter }) {
               className="button__secondary">
               Send Token
             </button>}
-            <div style={{ color: "#000000" }} className="new__to__login">
+            <div 
+              style={{ color: "#000000", justifyContent: "left"}} 
+              className="new__to__login"
+            >
               Did not get Email
-              <span>
-                <span onClick={handleClick} style={{color: "blue", cursor: "pointer"}}> Click here Resend</span>
-              </span>
+              <span onClick={handleClick} style={{color: "blue", cursor: "pointer"}}>Click here Resend</span>
             </div>
           </div>
         </div>

@@ -61,10 +61,9 @@ export default function InputBox({
           onChange={onChange}
           placeholder={placeholder ? placeholder : "Enter " + label}
           className="start__up__container__form__input__box__field"
-          style={errors[name] ? {borderColor: "red"} : {}}
+          style={{marginBottom: "1px solid black"}}
         />
       </div>
-      <p style={{color: "red"}}>{errors[name] && errors[name].message}</p>
     </div>
   );
 }

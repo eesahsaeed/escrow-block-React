@@ -19,7 +19,7 @@ export default function InputField({
   label = "",
   children
 }){
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(false);
 
   if (type === "date"){
     return (
@@ -37,7 +37,7 @@ export default function InputField({
               }})
             }} 
             value={value} 
-            className="start__up__container__form__input__box__field"
+            className="start__up__container__form__input__box__field no-border"
             id={name}
           />
         </div>
@@ -78,7 +78,7 @@ export default function InputField({
               name: name
             }}
             country={"af"}
-            className="start__up__container__form__input__box__field"
+            className="start__up__container__form__input__box__field no-border"
             onChange={(v, c, e) => onChange(e)}
             countryCodeEditable={false}/>
         </div>

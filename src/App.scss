@@ -1,3 +1,4 @@
+
 @import url("https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 *,
 *::before,
@@ -410,7 +411,7 @@ strong {
   color: darken(slategrey, 20%);
 }
 input{
-  font-size: large !important;
+  font-size: medium !important;
   font-weight: 300;
 }
 .otc__trading__section {
@@ -521,12 +522,30 @@ input{
   top: 0;
   height: 100%;
   padding-top: 70%;
-  border-radius: 12px;
+  border-radius: 13px;
   z-index: 90;
   background-color: #ffbc0014;
   text-align: center;
   font-size: 28px;
   font-weight: 600;
+}
+.loading-container-login{
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: -10px;
+  height: 100%;
+  padding-top: 30%;
+  border-radius: 13px;
+  z-index: 90;
+  background-color: #ffbc0014;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+}
+.forgot-password-head{
+  font-size: large !important;
+  font-weight: 300;
 }
 .sign_up_tab_container{
   margin-top: 20;
@@ -1222,6 +1241,11 @@ input:-webkit-autofill:active {
   text-decoration: underline;
 }
 
+.blue-text{
+  color: #0d6efd;
+  text-decoration: underline;
+}
+
 .login-link:active{
   color: #ffbc00;
 }
@@ -1509,12 +1533,16 @@ body{
   display: flex;
   flex-direction: row;
 }
+.no-border{
+  border: none !important;
+}
 .start__up__container__form__input__box__field,
 .start__up__container__form__input__box__text__area {
   width: 100%;
   max-width: 100%;
   background-color: transparent;
   border: none;
+  border-bottom: 1px solid rgb(0, 0, 0, 0.4);
   padding: 0.5em;
   outline: none;
   font-size: 14px;

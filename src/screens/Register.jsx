@@ -10,6 +10,7 @@ import PhoneInput from "../components/PhoneInput";
 import {DotLoader} from "react-spinners";
 
 import {getUrl} from "../helper/url-helper";
+import authHelper from "../helper/auth-helper";
 import InputField from "../components/InputField";
 
 const override = {
@@ -266,14 +267,14 @@ const countries = [
 ]
 
 export default function RegisterIndividual() {
-  const [form, setForm] = useState("first");
+  const [form, setForm] = useState(authHelper.isFirstDone() ? "second" : "first");
   const [values, setValues] = useState({
     userName: "",
     firstName: "",
     middleName: "",
     lastName: "",
     email: "",
-    preferredCommunication: "Telegram",
+    preferredCommunication: "",
     gender: "Male",
     country: "",
     phoneNumber: "",
@@ -283,15 +284,17 @@ export default function RegisterIndividual() {
     occupation: "Not Applicable",
     purposeOfEscrowAccount: "",
     sourceOfFunds: "Retained Earnings",
+    socialSecurityNumber: "",
     expectedTransactionSizePerTrade: "",
     identification: null,
     proofOfAddress: null,
     password: "",
     confirmPassword: ""
   });
-  const [value, onChange] = useState(new Date());
+  const [firstTabDisabled, setFirstTabDisabled] = useState(authHelper.isFirstDone());
+  const [secondTabDisabled, setSecondTabDisabled] = useState(!authHelper.isFirstDone());
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [color, setColor] = useState("#f5ca4e");
   
   const navigate = useNavigate();
@@ -319,8 +322,11 @@ export default function RegisterIndividual() {
             <div className="signup__container__new__form__heading">
               <div>Sign Up Now</div>
               <div className="sign_up_tab_container">
-                <button className="sign_up_tab_button" 
-                  onClick={() => setForm("first")}>
+                <button 
+                  className="sign_up_tab_button" 
+                  onClick={() => setForm("first")}
+                  disabled={firstTabDisabled}
+                >
                   {form === "first" ? <div>
                     <div>
                       <svg width="22" height="22" viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -334,7 +340,7 @@ export default function RegisterIndividual() {
                   </div> : <div>
                     <div>
                       <svg width="22" height="22" viewBox="0 0 74 74" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M37.25 6.125C20.345 6.125 6.625 19.845 6.625 36.75C6.625 53.655 20.345 67.375 37.25 67.375C54.155 67.375 67.875 53.655 67.875 36.75C67.875 19.845 54.155 6.125 37.25 6.125ZM37.25 61.25C23.7137 61.25 12.75 50.2863 12.75 36.75C12.75 23.2137 23.7137 12.25 37.25 12.25C50.7863 12.25 61.75 23.2137 61.75 36.75C61.75 50.2863 50.7863 61.25 37.25 61.25Z" fill="black"></path>
+                        <path d="M37.25 6.125C20.345 6.125 6.625 19.845 6.625 36.75C6.625 53.655 20.345 67.375 37.25 67.375C54.155 67.375 67.875 53.655 67.875 36.75C67.875 19.845 54.155 6.125 37.25 6.125ZM37.25 61.25C23.7137 61.25 12.75 50.2863 12.75 36.75C12.75 23.2137 23.7137 12.25 37.25 12.25C50.7863 12.25 61.75 23.2137 61.75 36.75C61.75 50.2863 50.7863 61.25 37.25 61.25Z" fill={firstTabDisabled ? "gray" : "#FFBC00"}></path>
                       </svg>
                     </div>
                     <div className="sign_up_tab_info">
@@ -345,8 +351,11 @@ export default function RegisterIndividual() {
                     </div>  
                   </div>}
                 </button>
-                <button className="sign_up_tab_button" 
-                  onClick={() => setForm("second")}>
+                <button 
+                  className="sign_up_tab_button" 
+                  onClick={() => setForm("second")}
+                  disabled={secondTabDisabled}
+                >
                   {form === "second" ? <div>
                     <div>
                       <svg width="22" height="22" viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -360,7 +369,7 @@ export default function RegisterIndividual() {
                   </div> : <div>
                     <div>
                       <svg width="22" height="22" viewBox="0 0 74 74" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M37.25 6.125C20.345 6.125 6.625 19.845 6.625 36.75C6.625 53.655 20.345 67.375 37.25 67.375C54.155 67.375 67.875 53.655 67.875 36.75C67.875 19.845 54.155 6.125 37.25 6.125ZM37.25 61.25C23.7137 61.25 12.75 50.2863 12.75 36.75C12.75 23.2137 23.7137 12.25 37.25 12.25C50.7863 12.25 61.75 23.2137 61.75 36.75C61.75 50.2863 50.7863 61.25 37.25 61.25Z" fill="black"></path>
+                        <path d="M37.25 6.125C20.345 6.125 6.625 19.845 6.625 36.75C6.625 53.655 20.345 67.375 37.25 67.375C54.155 67.375 67.875 53.655 67.875 36.75C67.875 19.845 54.155 6.125 37.25 6.125ZM37.25 61.25C23.7137 61.25 12.75 50.2863 12.75 36.75C12.75 23.2137 23.7137 12.25 37.25 12.25C50.7863 12.25 61.75 23.2137 61.75 36.75C61.75 50.2863 50.7863 61.25 37.25 61.25Z" fill={secondTabDisabled ? "gray" : "#FFBC00"}></path>
                       </svg>
                     </div>
                     <div className="sign_up_tab_info">
@@ -381,11 +390,14 @@ export default function RegisterIndividual() {
                   setValues={setValues}
                   handleSubmit={handleSubmit}
                   setForm={setForm}
+                  setLoading={setLoading}
                   /> : <Form2
                   values={values}
                   setValues={setValues}
                   handleSubmit={handleSubmit}
-                  setForm={setForm}/>}
+                  setForm={setForm}
+                  setLoading={setLoading}
+                  />}
               </div>
             </div>
           </div>
@@ -395,7 +407,12 @@ export default function RegisterIndividual() {
   );
 }
 
-function Form1({values, setValues, handleSubmit}){
+function Form1({
+  values, 
+  setValues, 
+  setForm,
+  setLoading
+}){
   const navigate = useNavigate();
 
   const [userNameError, setUserNameError] = useState(false);
@@ -554,10 +571,12 @@ function Form1({values, setValues, handleSubmit}){
 
   async function SignUp1(event) {
     event.preventDefault();
+    console.log(values);
 
-    let valid = true;
+    let valid = validateFirstForm();
 
     if (valid){
+      setLoading(true);
       let userData = new FormData();
       values.userName && userData.append("userName", values.userName);
       values.firstName && userData.append("firstName", values.firstName);
@@ -565,7 +584,7 @@ function Form1({values, setValues, handleSubmit}){
       values.middleName && userData.append("middleName", values.middleName);
       values.email && userData.append("email", values.email);
       values.gender && userData.append("gender", values.gender);
-      values.countryOfOrigin && userData.append("country", values.countryOfOrigin);
+      values.country && userData.append("country", values.country);
       values.phoneNumber && userData.append("phoneNumber", values.phoneNumber);
       values.dateOfBirth && userData.append("dateOfBirth", values.dateOfBirth);
       values.password && userData.append("password", values.password);
@@ -595,66 +614,73 @@ function Form1({values, setValues, handleSubmit}){
 
       register(userData).then(data => {
         console.log(data);
-        let errors = Object.keys(data.errors);
-        console.log(errors);
-
-        for (let i = 0; i < errors.length; i++){
-          let name = errors[i];
-
-          if (name === "userName"){
-            setUserNameError(true);
-            setUserNameErrorMessage(data.errors[errors[i]].message);
-          }
-      
-          if (name === "firstName"){
-            setFirstNameError(true);
-            setFirstNameErrorMessage(data.errors[errors[i]].message);
-          }
-      
-          if (name === "lastName"){
-            setLastNameError(true);
-            setLastNameErrorMessage(data.errors[errors[i]].message);
-          }
-      
-          if (name === "email"){
-            setEmailError(true);
-            setEmailErrorMessage(data.errors[errors[i]].message);
-          }
-      
-          if (name === "gender"){
-            setGenderError(true);
-            setGenderErrorMessage(data.errors[errors[i]].message);
-          }
-      
-          if (name === "country"){
-            setCountryError(true);
-            setCountryErrorMessage(data.errors[errors[i]].message);
-          }
-      
-          if (name === "phoneNumber"){
-            setPhoneNumberError(true);
-            setPhoneNumberErrorMessage(data.errors[errors[i]].message);
-          }
-      
-          if (name === "dateOfBirth"){
-            setDateOfBirthError(true);
-            setDateOfBirthErrorMessage(data.errors[errors[i]].message)
-          }
-      
-          if (name === "password"){
-            setPasswordError(true);
-            setPasswordErrorMessage(data.errors[errors[i]].message);
-          }
-
-          if (name === "confirmPassword"){
-            setConfirmPasswordError(true);
-            setConfirmPasswordErrorMessage(data.errors[errors[i]].message);
-          }
-        }
 
         if (data.success){
-
+          console.log(data.data);
+          setLoading(false);
+          setForm("second");
+          authHelper.setFirstForm(data.data);
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
         } else if (data.errors){
+          let errors = Object.keys(data.errors);
+
+          for (let i = 0; i < errors.length; i++){
+            let name = errors[i];
+
+            if (name === "userName"){
+              setUserNameError(true);
+              setUserNameErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "firstName"){
+              setFirstNameError(true);
+              setFirstNameErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "lastName"){
+              setLastNameError(true);
+              setLastNameErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "email"){
+              setEmailError(true);
+              setEmailErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "gender"){
+              setGenderError(true);
+              setGenderErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "country"){
+              setCountryError(true);
+              setCountryErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "phoneNumber"){
+              setPhoneNumberError(true);
+              setPhoneNumberErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "dateOfBirth"){
+              setDateOfBirthError(true);
+              setDateOfBirthErrorMessage(data.errors[errors[i]].message)
+            }
+        
+            if (name === "password"){
+              setPasswordError(true);
+              setPasswordErrorMessage(data.errors[errors[i]].message);
+            }
+
+            if (name === "confirmPassword"){
+              setConfirmPasswordError(true);
+              setConfirmPasswordErrorMessage(data.errors[errors[i]].message);
+            }
+          }
+          setLoading(false);
           window.scrollTo({
             top: 0,
             behavior: "smooth",
@@ -665,13 +691,15 @@ function Form1({values, setValues, handleSubmit}){
             behavior: "smooth",
           });
         } else {
+          console.log(data);
+          setLoading(false);
           window.scrollTo({
             top: 0,
             behavior: "smooth",
           });
         }
       }).catch(err => {
-        console.log(err);
+        setLoading(false);
         window.scrollTo({
           top: 0,
           behavior: "smooth",
@@ -841,7 +869,12 @@ function Form1({values, setValues, handleSubmit}){
   )
 }
 
-function Form2({values, setValues, handleSubmit}){
+function Form2({
+  values, 
+  setValues, 
+  setForm,
+  setLoading
+}){
   const navigate = useNavigate();
 
   const [preferredCommuninicationError, setPreferredCommunicationError] = useState(false);
@@ -1005,6 +1038,82 @@ function Form2({values, setValues, handleSubmit}){
     return valid;
   }
 
+  async function SignUp2(event) {
+    event.preventDefault();
+    console.log(values);
+
+    let valid = validateSecondForm();
+
+    if (valid){
+      setLoading(true);
+
+      let userData = new FormData();
+      values.preferredCommunication && userData.append("preferredCommunication", values.preferredCommunication);
+      values.telegram && userData.append("telegram", values.telegram);
+      values.employmentStatus && userData.append("employmentStatus", values.employmentStatus);
+      values.occupation && userData.append("occupation", values.occupation);
+      values.purposeOfEscrowAccount && userData.append("purposeOfEscrowAccount", values.purposeOfEscrowAccount);
+      values.sourceOfFunds && userData.append("sourceOfFunds", values.sourceOfFunds);
+      values.expectedTransactionSizePerTrade && userData.append("expectedTransactionSizePerTrade", values.expectedTransactionSizePerTrade);
+      values.address && userData.append("address", values.address);
+      userData.append("id", authHelper.getForm()._id);
+
+      const abortController = new AbortController();
+      const signal = abortController.signal;
+
+      async function register(user){
+        try{
+        let response = await fetch(`${getUrl()}/users/second-register`, {
+            method: "POST",
+            headers: {
+              "Accept": "application/json"
+            },
+            body: user
+          })
+
+          return await response.json();
+        } catch(err){
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        }
+      }
+
+      register(userData).then(data => {
+        console.log(data);
+
+        if (data.success){
+          setLoading(false);
+          authHelper.clearForm();
+          navigate("/login");
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        } else {
+          console.log(data);
+          setLoading(false);
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        }
+      }).catch(err => {
+        setLoading(false);
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      })
+    } else {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      })
+    }
+  }
+
   return (
     <form>
       <div className="input_container">
@@ -1024,7 +1133,7 @@ function Form2({values, setValues, handleSubmit}){
           type="text" 
           onChange={onChangeHandler} 
           label="Telegram" 
-          placeholder="Telegram"
+          placeholder="Telegram (If Any)"
           error={telegramError}
           errorMessage={telegramErrorMessage}
         />
@@ -1144,7 +1253,12 @@ function Form2({values, setValues, handleSubmit}){
       </div>
       <div className="input_container" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
         Already a user?<pre>{" "}</pre><Link to="/login" className="login-link">Click here to Login</Link>
-        <button className="button gap">Submit</button>
+        <button 
+          className="button gap"
+          onClick={SignUp2}
+        >
+          Submit
+        </button>
       </div>
     </form>
   )
