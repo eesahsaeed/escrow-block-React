@@ -497,6 +497,7 @@ input{
   width: 600px;
 }
 .sign_up_form{
+  position: relative;
   align-items: center;
   border-radius: 14px;
   box-shadow: 0 10px 30px rgb(0 0 0 / 10%);
@@ -513,6 +514,24 @@ input{
   font-size: large;
   font-weight: 300;
   text-align: left;
+}
+.loading-container{
+  position: absolute;
+  width: 100%;
+  top: 0;
+  height: 100%;
+  padding-top: 70%;
+  border-radius: 12px;
+  z-index: 90;
+  background-color: #ffbc0014;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+}
+.sign_up_tab_container{
+  margin-top: 20;
+  display: flex;
+  justify-content: center;
 }
 .sign_up_form_input{
   border: 1px solid hsl(0deg 0% 50% / 30%);
@@ -1951,6 +1970,19 @@ body{
 @media (max-width: 700px) {
   .about_us_forex{
     margin-top: 0px !important;
+  }
+
+  .sign_up_form{
+    position: relative;
+    align-items: center;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgb(0 0 0 / 10%);
+    display: flex;
+    flex-direction: column;
+    max-width: 700px;
+    padding: 1em 2em;
+    width: 100%;
+    margin: 400px auto 50px auto;
   }
 
   .register__section__content {

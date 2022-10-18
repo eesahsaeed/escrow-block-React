@@ -13,6 +13,7 @@ export default function InputField({
   onChange,
   required,
   error,
+  errorMessage,
   placeholder,
   value = "",
   label = "",
@@ -24,7 +25,10 @@ export default function InputField({
     return (
       <>
         <label htmlFor={name}>{label}</label> 
-        <div className="sign_up_form_input">
+        <div 
+          className="sign_up_form_input"
+          style={{borderColor: error ? "red" : ""}}
+        >
           <DatePicker 
             onChange={(v) => {
               onChange({target: {
@@ -37,6 +41,7 @@ export default function InputField({
             id={name}
           />
         </div>
+        {error && <p style={{color: "red"}}>{errorMessage}</p>}
       </>
     )
   }
@@ -49,9 +54,13 @@ export default function InputField({
           onChange={onChange} 
           className="sign_up_form_input_text"
           placeholder={placeholder}
-          id={name}>
-            {children}
-          </select>
+          id={name}
+          name={name}
+          style={{borderColor: error ? "red" : ""}}
+        >
+          {children}
+        </select>
+        {error && <p style={{color: "red"}}>{errorMessage}</p>}
       </>
     )
   }
@@ -60,7 +69,10 @@ export default function InputField({
     return (
       <>
         <label htmlFor={name}>{label}</label>
-        <div className="sign_up_form_input">
+        <div 
+          className="sign_up_form_input" 
+          style={{borderColor: error ? "red" : ""}}
+        >
           <PhoneInput 
             inputProps={{
               name: name
@@ -70,6 +82,7 @@ export default function InputField({
             onChange={(v, c, e) => onChange(e)}
             countryCodeEditable={false}/>
         </div>
+        {error && <p style={{color: "red"}}>{errorMessage}</p>}
       </>
     )
   }
@@ -84,12 +97,15 @@ export default function InputField({
           placeholder={placeholder}
           id={name}
           type={visible ? "text" : type}
+          name={name}
+          style={{borderColor: error ? "red" : ""}}
         />
         <div className="visible_password" onClick={() => {
           setVisible(!visible)
         }}>
           {visible ? <AiOutlineEye size={20}/> : <AiOutlineEyeInvisible size={20}/>}
         </div>
+        {error && <p style={{color: "red"}}>{errorMessage}</p>}
       </>
     )
   }
@@ -114,7 +130,10 @@ export default function InputField({
         placeholder={placeholder}
         id={name}
         type={type}
+        name={name}
+        style={{borderColor: error ? "red" : ""}}
       />
+      {error && <p style={{color: "red"}}>{errorMessage}</p>}
     </>
   )
 }

@@ -190,14 +190,7 @@ export default function HomeScreen({setNoHeaderFooter}) {
       </div>
       <div className="buy__bitcoin__section">
         <div className="buy__bitcoin__section__content">
-          <div className="buy__bitcoin__section__content__left">
-            <img
-              src={buy__coin__pic}
-              alt="buy__coin__pic"
-              className="buy__bitcoin__section__content__img"
-            />
-          </div>
-          <div className="buy__bitcoin__section__content__right">
+          <div className="buy__bitcoin__section__content__right" style={{margin: "0px auto"}}>
             <div className="buy__bitcoin__section__content__heading">
               BUY BITCOIN - SWIFTLY AND SECURELY, WORLDWIDE
             </div>

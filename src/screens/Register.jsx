@@ -1,3 +1,4 @@
+
 import React, {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import waveBG from "../assets/waveBg.svg";
@@ -6,10 +7,16 @@ import PasswordInputBox from "../components/PasswordInputBox";
 import SelectBox from "../components/SelectBox";
 import SelectDropdown from "../components/SelectDropdown";
 import PhoneInput from "../components/PhoneInput";
-import { Col, Row, Card, Form, Button, InputGroup } from '@themesberg/react-bootstrap';
+import {DotLoader} from "react-spinners";
 
 import {getUrl} from "../helper/url-helper";
 import InputField from "../components/InputField";
+
+const override = {
+  display: "block",
+  margin: "0 auto",
+  borderColor: "red",
+}
 
 const countries = [ 
   {name: ' -- Select Country -- ', code: ''},
@@ -260,9 +267,6 @@ const countries = [
 
 export default function RegisterIndividual() {
   const [form, setForm] = useState("first");
-  const [errors, setErrors] = useState({});
-  const [exist, setExist] = useState(null);
-  const [wrong, setWrong] = useState("");
   const [values, setValues] = useState({
     userName: "",
     firstName: "",
@@ -273,137 +277,28 @@ export default function RegisterIndividual() {
     gender: "Male",
     country: "",
     phoneNumber: "",
-    dateOfBirth: new Date(),
+    dateOfBirth: "",
     telegram: "",
     employmentStatus: "Employed",
     occupation: "Not Applicable",
     purposeOfEscrowAccount: "",
     sourceOfFunds: "Retained Earnings",
     expectedTransactionSizePerTrade: "",
+    identification: null,
+    proofOfAddress: null,
     password: "",
     confirmPassword: ""
   });
   const [value, onChange] = useState(new Date());
 
+  const [loading, setLoading] = useState(true);
+  const [color, setColor] = useState("#f5ca4e");
+  
   const navigate = useNavigate();
 
-  const onChangeHandler = (e) => {
-    let name = e.target.name;
-    let value = null;
-
-    switch (name){
-      case "passportIdCopy":
-        value = e.target.files[0];
-        break;
-      case "proofOfAddress":
-        value = e.target.files[0];
-        break;
-      case "bankStatement":
-        value = e.target.files[0];
-        break;
-      case "photo":
-        value = e.target.files[0];
-        break;
-      default:
-        value = e.target.value;
-        break;
-    }
-    
-    setValues({
-      ...values,
-      [name]: value,
-    });
-  };
-
-  async function SignUp(event) {
-    event.preventDefault();
-    let userData = new FormData();
-    values.userName && userData.append("userName", values.userName);
-    values.firstName && userData.append("firstName", values.firstName);
-    values.lastName && userData.append("lastName", values.lastName);
-    values.email && userData.append("email", values.email);
-    values.preferredCommunication && userData.append("preferredCommunication", values.preferredCommunication);
-    values.gender && userData.append("gender", values.gender);
-    values.countryOfOrigin && userData.append("country", values.countryOfOrigin);
-    values.phoneNumber && userData.append("phoneNumber", values.phoneNumber);
-    values.dateOfBirth && userData.append("dateOfBirth", values.dateOfBirth);
-    values.occupation && userData.append("occupation", values.occupation);
-    values.employmentStatus && userData.append("employmentStatus", values.employmentStatus);
-    values.telegram && userData.append("telegram", values.telegram);
-    values.sourceOfFunds && userData.append("sourceOfFunds", values.sourceOfFunds);
-    values.purposeOfEscrowAccount && userData.append("purposeOfEscrowAccount", values.purposeOfEscrowAccount);
-    values.expectedTransactionSizePerTrade && userData.append("expectedTransactionSizePerTrade", values.expectedTransactionSizePerTrade);
-    values.password && userData.append("password", values.password);
-    values.confirmPassword && userData.append("confirmPassword", values.confirmPassword);
-
-    const abortController = new AbortController();
-    const signal = abortController.signal;
-
-    async function register(user){
-      try{
-       let response = await fetch(`${getUrl()}/users/register`, {
-          method: "POST",
-          headers: {
-            "Accept": "application/json"
-          },
-          body: user
-        })
-
-        return await response.json();
-      } catch(err){
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-      }
-    }
-
-    register(userData).then(data => {
-      console.log(data);
-      if (data.success){
-        navigate("/welcome/" + values.firstName);
-      } else if (data.errors){
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-        setErrors(data.errors)
-      } else if (data.message){
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-        setExist(data)
-      } else {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-        setWrong(data.error)
-      }
-    }).catch(err => {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    })
-
-    /*const config = {
-      headers: { 
-        "Accept": "application/json" 
-      },
-    };
-
-    axios.post(
-      "https://escrow-block.herokuapp.com//users/register",
-      {body: userData},
-      config
-    ).then((response) => {
-      console.log(response);
-    })
-    .catch((error) => {
-      console.log(error);
-    });*/
+  function handleSubmit(e){
+    e.preventDefault();
+    console.log(values);
   }
 
   return (
@@ -411,9 +306,19 @@ export default function RegisterIndividual() {
       <div>
         <div className="sign_up_container">
           <div className="about_section__content__card sign_up_form">
+            {loading && <div className="loading-container">
+              <DotLoader
+                color={color}
+                loading={loading}
+                cssOverride={override}
+                size={150}
+                aria-label="Loading Spinner"
+                data-testid="loader"
+              />
+            </div>}
             <div className="signup__container__new__form__heading">
               <div>Sign Up Now</div>
-              <div style={{marginTop: 20}}>
+              <div className="sign_up_tab_container">
                 <button className="sign_up_tab_button" 
                   onClick={() => setForm("first")}>
                   {form === "first" ? <div>
@@ -471,133 +376,16 @@ export default function RegisterIndividual() {
                 <div style={{marginBottom: 10}}>
                   Please enter name as displayed on official documents
                 </div>
-                <form>
-                  <div className="input_container">
-                    <InputField 
-                      name="userName" 
-                      type="text" 
-                      onChange={onChangeHandler} 
-                      label="User Name" 
-                      placeholder="User Name"
-                    />
-                  </div>
-                  <div className="input_container">
-                    <InputField 
-                      name="firstName" 
-                      type="text" 
-                      onChange={onChangeHandler} 
-                      label="First Name" 
-                      placeholder="First Name"
-                    />
-                  </div>
-                  <div className="input_container">
-                    <InputField 
-                      name="lastName" 
-                      type="text" 
-                      onChange={onChangeHandler} 
-                      label="Last Name" 
-                      placeholder="Last Name"
-                    />
-                  </div>
-                  <div className="input_container">
-                    <InputField 
-                      name="middleName" 
-                      type="text" 
-                      onChange={onChangeHandler} 
-                      label="Middle Name (Optional)" 
-                      placeholder="Middle Name (Optional)"
-                    />
-                  </div>
-                  <div className="input_container">
-                    <InputField 
-                      name="email" 
-                      type="text" 
-                      onChange={onChangeHandler} 
-                      label="Email Address" 
-                      placeholder="Email"
-                    />
-                  </div>
-                  <div className="input_container">
-                    <InputField 
-                      name="gender"
-                      type="select"
-                      onChange={onChangeHandler}
-                      label="Gender"
-                      placeholder="Gender"
-                    >
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                    </InputField>
-                  </div>
-                  <div className="input_container">
-                    <InputField 
-                      name="country"
-                      type="select"
-                      onChange={onChangeHandler}
-                      label="Country"
-                      placeholder="Gender"
-                    >
-                      {countries.map((country, i) => (
-                        <option value={country.name}>{country.name}</option>
-                      ))}
-                    </InputField>
-                  </div>
-                  <div className="input_container">
-                    <InputField 
-                      name="phoneNumber"
-                      type="text" 
-                      onChange={onChangeHandler} 
-                      label="Phone Number"
-                    />
-                  </div>
-                  <div className="input_container">
-                    <InputField 
-                      name="dateOfBirth"
-                      type="date" 
-                      onChange={onChangeHandler} 
-                      label="Date Of Birth"
-                      value={values.dateOfBirth}
-                    />
-                  </div>
-                  <div className="input_container">
-                    <InputField 
-                      name="password"
-                      type="password" 
-                      onChange={onChangeHandler} 
-                      label="Password"
-                      placeholder="Password"
-                    />
-                  </div>
-                  <div className="input_container">
-                    <InputField 
-                      name="confirmPassword"
-                      type="password" 
-                      onChange={onChangeHandler} 
-                      label="Confirm Password"
-                      placeholder="Confirm Password"
-                    />
-                  </div>
-                  <div className="check2">
-                    <InputField 
-                      name="checkbox1"
-                      type="checkbox" 
-                      onChange={onChangeHandler} 
-                      label="I'm over the 18 age and accept terms and conditions"
-                    />
-                  </div>
-                  <div className="check2">
-                    <InputField 
-                      name="checkbox2"
-                      type="checkbox" 
-                      onChange={onChangeHandler} 
-                      label="I would like to receive newsletter via Email"
-                    />
-                  </div>
-                  <div className="input_container" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
-                    Already a user?{" "}<Link to="/login" className="login-link">Click here to Login</Link>
-                    <button className="button gap">Register Now</button>
-                  </div>
-                </form>
+                {form === "first" ? <Form1 
+                  values={values} 
+                  setValues={setValues}
+                  handleSubmit={handleSubmit}
+                  setForm={setForm}
+                  /> : <Form2
+                  values={values}
+                  setValues={setValues}
+                  handleSubmit={handleSubmit}
+                  setForm={setForm}/>}
               </div>
             </div>
           </div>
@@ -605,6 +393,761 @@ export default function RegisterIndividual() {
       </div>
     </>
   );
+}
+
+function Form1({values, setValues, handleSubmit}){
+  const navigate = useNavigate();
+
+  const [userNameError, setUserNameError] = useState(false);
+  const [userNameErrorMessage, setUserNameErrorMessage] = useState("");
+  const [firstNameError, setFirstNameError] = useState(false);
+  const [firstNameErrorMessage, setFirstNameErrorMessage] = useState("");
+  const [lastNameError, setLastNameError] = useState(false);
+  const [lastNameErrorMessage, setLastNameErrorMessage] = useState("");
+  const [emailError, setEmailError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [genderError, setGenderError] = useState(false);
+  const [genderErrorMessage, setGenderErrorMessage] = useState("");
+  const [countryError, setCountryError] = useState(false);
+  const [countryErrorMessage, setCountryErrorMessage] = useState("");
+  const [phoneNumberError, setPhoneNumberError] = useState(false);
+  const [phoneNumberErrorMessage, setPhoneNumberErrorMessage] = useState("");
+  const [dateOfBirthError, setDateOfBirthError] = useState(false);
+  const [dateOfBirthErrorMessage, setDateOfBirthErrorMessage] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+  const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState("");
+
+  const [errors, setErrors] = useState({});
+
+  const onChangeHandler = (e) => {
+    let name = e.target.name;
+    let value = e.target.value;
+
+    clearError(name);
+    
+    setValues({...values, [name]: value});
+  };
+
+  function clearError(name){
+    if (name === "userName"){
+      setUserNameError(false);
+      setUserNameErrorMessage("");
+    }
+
+    if (name === "firstName"){
+      setFirstNameError(false);
+      setFirstNameErrorMessage("");
+    }
+
+    if (name === "lastName"){
+      setLastNameError(false);
+      setLastNameErrorMessage("");
+    }
+
+    if (name === "email"){
+      setEmailError(false);
+      setEmailErrorMessage("");
+    }
+
+    if (name === "gender"){
+      setGenderError(false);
+      setGenderErrorMessage("");
+    }
+
+    if (name === "country"){
+      setCountryError(false);
+      setCountryErrorMessage("");
+    }
+
+    if (name === "phoneNumber"){
+      setPhoneNumberError(false);
+      setPhoneNumberErrorMessage("");
+    }
+
+    if (name === "dateOfBirth"){
+      setDateOfBirthError(false);
+      setDateOfBirthErrorMessage("");
+    }
+
+    if (name === "password"){
+      setPasswordError(false);
+      setPasswordErrorMessage("");
+    }
+
+    if (name === "password" || name === "confirmPassword"){
+      setPasswordError(false);
+      setPasswordErrorMessage("");
+      setConfirmPasswordError(false);
+      setConfirmPasswordErrorMessage("");
+    }
+  }
+
+  function validateFirstForm(){
+    let valid = true;
+
+    if (!values.userName){
+      valid = false;
+      setUserNameError(true);
+      setUserNameErrorMessage("User Name is required");
+    }
+
+    if (!values.firstName){
+      valid = false;
+      setFirstNameError(true);
+      setFirstNameErrorMessage("First Name is required");
+    }
+
+    if (!values.lastName){
+      valid = false;
+      setLastNameError(true);
+      setLastNameErrorMessage("Last Name is required");
+    }
+
+    if (!values.email){
+      valid = false;
+      setEmailError(true);
+      setEmailErrorMessage("Email Address is required");
+    }
+
+    if (!values.gender){
+      valid = false;
+      setGenderError(true);
+      setGenderErrorMessage("Gender is required");
+    }
+
+    if (!values.country){
+      valid = false;
+      setCountryError(true);
+      setCountryErrorMessage("Select a country");
+    }
+
+    if (!values.phoneNumber){
+      valid = false;
+      setPhoneNumberError(true);
+      setPhoneNumberErrorMessage("Phone Number is required");
+    }
+
+    if (!values.dateOfBirth || values.dateOfBirth >= new Date()){
+      valid = false;
+      setDateOfBirthError(true);
+      setDateOfBirthErrorMessage("Select a valid Date Of Birth");
+    }
+
+    if (!values.password){
+      valid = false;
+      setPasswordError(true);
+      setPasswordErrorMessage("Invalid Password");
+    }
+
+    if (values.password !== values.confirmPassword){
+      valid = false;
+      setPasswordError(true);
+      setPasswordErrorMessage("Passwords do not match");
+      setConfirmPasswordError(true);
+      setConfirmPasswordErrorMessage("Passwords do not match");
+    }
+
+    return valid;
+  }
+
+  async function SignUp1(event) {
+    event.preventDefault();
+
+    let valid = true;
+
+    if (valid){
+      let userData = new FormData();
+      values.userName && userData.append("userName", values.userName);
+      values.firstName && userData.append("firstName", values.firstName);
+      values.lastName && userData.append("lastName", values.lastName);
+      values.middleName && userData.append("middleName", values.middleName);
+      values.email && userData.append("email", values.email);
+      values.gender && userData.append("gender", values.gender);
+      values.countryOfOrigin && userData.append("country", values.countryOfOrigin);
+      values.phoneNumber && userData.append("phoneNumber", values.phoneNumber);
+      values.dateOfBirth && userData.append("dateOfBirth", values.dateOfBirth);
+      values.password && userData.append("password", values.password);
+      values.confirmPassword && userData.append("confirmPassword", values.confirmPassword);
+
+      const abortController = new AbortController();
+      const signal = abortController.signal;
+
+      async function register(user){
+        try{
+        let response = await fetch(`${getUrl()}/users/register`, {
+            method: "POST",
+            headers: {
+              "Accept": "application/json"
+            },
+            body: user
+          })
+
+          return await response.json();
+        } catch(err){
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        }
+      }
+
+      register(userData).then(data => {
+        console.log(data);
+        let errors = Object.keys(data.errors);
+        console.log(errors);
+
+        for (let i = 0; i < errors.length; i++){
+          let name = errors[i];
+
+          if (name === "userName"){
+            setUserNameError(true);
+            setUserNameErrorMessage(data.errors[errors[i]].message);
+          }
+      
+          if (name === "firstName"){
+            setFirstNameError(true);
+            setFirstNameErrorMessage(data.errors[errors[i]].message);
+          }
+      
+          if (name === "lastName"){
+            setLastNameError(true);
+            setLastNameErrorMessage(data.errors[errors[i]].message);
+          }
+      
+          if (name === "email"){
+            setEmailError(true);
+            setEmailErrorMessage(data.errors[errors[i]].message);
+          }
+      
+          if (name === "gender"){
+            setGenderError(true);
+            setGenderErrorMessage(data.errors[errors[i]].message);
+          }
+      
+          if (name === "country"){
+            setCountryError(true);
+            setCountryErrorMessage(data.errors[errors[i]].message);
+          }
+      
+          if (name === "phoneNumber"){
+            setPhoneNumberError(true);
+            setPhoneNumberErrorMessage(data.errors[errors[i]].message);
+          }
+      
+          if (name === "dateOfBirth"){
+            setDateOfBirthError(true);
+            setDateOfBirthErrorMessage(data.errors[errors[i]].message)
+          }
+      
+          if (name === "password"){
+            setPasswordError(true);
+            setPasswordErrorMessage(data.errors[errors[i]].message);
+          }
+
+          if (name === "confirmPassword"){
+            setConfirmPasswordError(true);
+            setConfirmPasswordErrorMessage(data.errors[errors[i]].message);
+          }
+        }
+
+        if (data.success){
+
+        } else if (data.errors){
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        } else if (data.message){
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        } else {
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        }
+      }).catch(err => {
+        console.log(err);
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      })
+    } else {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      })
+    }
+  }
+
+  return (
+    <form style={{position: "relative"}}>
+      <div className="input_container">
+        <InputField 
+          name="userName" 
+          type="text" 
+          onChange={onChangeHandler} 
+          label="User Name" 
+          placeholder="User Name"
+          error={userNameError}
+          errorMessage={userNameErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="firstName" 
+          type="text" 
+          onChange={onChangeHandler} 
+          label="First Name" 
+          placeholder="First Name"
+          error={firstNameError}
+          errorMessage={firstNameErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="lastName" 
+          type="text" 
+          onChange={onChangeHandler} 
+          label="Last Name" 
+          placeholder="Last Name"
+          error={lastNameError}
+          errorMessage={lastNameErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="middleName" 
+          type="text" 
+          onChange={onChangeHandler} 
+          label="Middle Name (Optional)" 
+          placeholder="Middle Name (Optional)"
+          error={false}
+          errorMessage={""}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="email" 
+          type="email" 
+          onChange={onChangeHandler} 
+          label="Email Address" 
+          placeholder="Email"
+          error={emailError}
+          errorMessage={emailErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="gender"
+          type="select"
+          onChange={onChangeHandler}
+          label="Gender"
+          placeholder="Gender"
+          error={genderError}
+          errorMessage={genderErrorMessage}
+        >
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </InputField>
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="country"
+          type="select"
+          onChange={onChangeHandler}
+          label="Country"
+          placeholder="Gender"
+          error={countryError}
+          errorMessage={countryErrorMessage}
+        >
+          {countries.map((country, i) => (
+            <option value={country.name}>{country.name}</option>
+          ))}
+        </InputField>
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="phoneNumber"
+          type="text" 
+          onChange={onChangeHandler} 
+          label="Phone Number"
+          error={phoneNumberError}
+          errorMessage={phoneNumberErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="dateOfBirth"
+          type="date" 
+          onChange={onChangeHandler} 
+          label="Date Of Birth"
+          value={values.dateOfBirth}
+          error={dateOfBirthError}
+          errorMessage={dateOfBirthErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="password"
+          type="password" 
+          onChange={onChangeHandler} 
+          label="Password"
+          placeholder="Password"
+          error={passwordError}
+          errorMessage={passwordErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="confirmPassword"
+          type="password" 
+          onChange={onChangeHandler} 
+          label="Confirm Password"
+          placeholder="Confirm Password"
+          error={confirmPasswordError}
+          errorMessage={confirmPasswordErrorMessage}
+        />
+      </div>
+      <div className="check2">
+        <InputField 
+          name="checkbox1"
+          type="checkbox" 
+          onChange={onChangeHandler} 
+          label="I'm over the 18 age and accept terms and conditions"
+        />
+      </div>
+      <div className="check2">
+        <InputField 
+          name="checkbox2"
+          type="checkbox" 
+          onChange={onChangeHandler} 
+          label="I would like to receive newsletter via Email"
+        />
+      </div>
+      <div className="input_container" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+        Already a user?<pre>{" "}</pre><Link to="/login" className="login-link">Click here to Login</Link>
+        <button 
+          className="button gap" 
+          onClick={SignUp1}
+        >Register Now</button>
+      </div>
+    </form>
+  )
+}
+
+function Form2({values, setValues, handleSubmit}){
+  const navigate = useNavigate();
+
+  const [preferredCommuninicationError, setPreferredCommunicationError] = useState(false);
+  const [preferredCommuninicationErrorMessage, setPreferredCommunicationErrorMessage] = useState("");
+  const [telegramError, setTelegramError] = useState(false);
+  const [telegramErrorMessage, setTelegramErrorMessage] = useState("")
+  const [addressError, setAddressError] = useState(false);
+  const [addressErrorMessage, setAddressErrorMessage] = useState("");
+  const [employmentStatusError, setEmploymentStatusError] = useState(false);
+  const [employmentStatusErrorMessage, setEmploymentStatusErrorMessage] = useState("");
+  const [occupationError, setOccupationError] = useState(false);
+  const [occupationErrorMessage, setOccupationErrorMessage] = useState("");
+  const [purposeOfEscrowAccountError, setPurposeOfEscrowAccountError] = useState(false);
+  const [purposeOfEscrowAccountErrorMessage, setPurposeOfEscrowAccountErrorMessage] = useState("");
+  const [sourceOfFundsError, setSourceOfFundsError] = useState(false);
+  const [sourceOfFundsErrorMessage, setSourceOfFundsErrorMessage] = useState("");
+  const [expectedTransactionSizePerTradeError, setExpectedTransactionSizePerTradeError] = useState(false);
+  const [expectedTransactionSizePerTradeErrorMessage, setExpectedTransactionSizePerTradeErrorMessage] = useState("");
+  const [identificationError, setIdentificationError] = useState(false);
+  const [identificationErrorMessage, setIdentificationErrorMessage] = useState("");
+  const [proofOfAddressError, setProofOfAddressError] = useState(false);
+  const [proofOfAddressErrorMessage, setProofOfAddressErrorMessage] = useState("");
+  const [socialSecurityNumberError, setSocialSecurityNumberError] = useState(false);
+  const [socialSecurityNumberErrorMessage, setSocialSecurityNumberErrorMessage] = useState("");
+
+  const onChangeHandler = (e) => {
+    let name = e.target.name;
+    let value = e.target.value;
+
+    clearError(name);
+    
+    setValues({...values, [name]: value});
+  };
+
+  function clearError(name){
+    if (name === "preferredCommunication"){
+      setPreferredCommunicationError(false);
+      setPreferredCommunicationErrorMessage("");
+    }
+
+    if (name === "telegram"){
+      setTelegramError(false);
+      setTelegramErrorMessage("");
+    }
+
+    if (name === "employmentStatus"){
+      setEmploymentStatusError(false);
+      setEmploymentStatusErrorMessage("");
+    }
+
+    if (name === "occupation"){
+      setOccupationError(false);
+      setOccupationErrorMessage("");
+    }
+
+    if (name === "purposeOfEscrowAccount"){
+      setPurposeOfEscrowAccountError(false);
+      setPurposeOfEscrowAccountErrorMessage("");
+    }
+
+    if (name === "sourceOfFunds"){
+      setSourceOfFundsError(false);
+      setSourceOfFundsErrorMessage("");
+    }
+
+    if (name === "expectedTransactionSizePerTrade"){
+      setExpectedTransactionSizePerTradeError(false);
+      setExpectedTransactionSizePerTradeErrorMessage("");
+    }
+
+    if (name === "address"){
+      setAddressError(false);
+      setAddressErrorMessage("");
+    }
+
+    if (name === "identification"){
+      setIdentificationError(false);
+      setIdentificationErrorMessage("");
+    }
+
+    if (name === "proofOfAddress"){
+      setProofOfAddressError(false);
+      setProofOfAddressErrorMessage("");
+    }
+
+    if (name === "socialSecurityNumber"){
+      setSocialSecurityNumberError(false);
+      setSocialSecurityNumberErrorMessage("");
+    }
+  }
+
+  function validateSecondForm(){
+    let valid = true;
+
+    if (!values.preferredCommunication){
+      valid = false;
+      setPreferredCommunicationError(true);
+      setPreferredCommunicationErrorMessage("Preferred Communication is required");
+    }
+
+    if (!values.telegram){
+      valid = false;
+      setTelegramError(true);
+      setTelegramErrorMessage("Telegram is required");
+    }
+
+    if (!values.employmentStatus){
+      valid = false;
+      setEmploymentStatusError(true);
+      setEmploymentStatusErrorMessage("Employment Status is required")
+    }
+
+    if (!values.occupation){
+      valid = false;
+      setOccupationError(true);
+      setOccupationErrorMessage("Occupation is required");
+    }
+
+    if (!values.purposeOfEscrowAccount){
+      valid = false;
+      setPurposeOfEscrowAccountError(true);
+      setPurposeOfEscrowAccountErrorMessage("Purpose of Escrow Account is required");
+    }
+
+    if (!values.sourceOfFunds){
+      valid = false;
+      setSourceOfFundsError(true);
+      setSourceOfFundsErrorMessage("Source Of Funds is required");
+    }
+
+    if (!values.expectedTransactionSizePerTrade){
+      valid = false;
+      setExpectedTransactionSizePerTradeError(true);
+      setExpectedTransactionSizePerTradeErrorMessage("Expected Transaction Size Per Trade is required");
+    }
+
+    if (!values.address){
+      valid = false;
+      setAddressError(true);
+      setAddressErrorMessage("Address is required");
+    }
+
+    if (!values.identification){
+      valid = false;
+      setIdentificationError(true);
+      setIdentificationErrorMessage("Identification is required");
+    }
+
+    if (!values.proofOfAddress){
+      valid = false;
+      setProofOfAddressError(true);
+      setProofOfAddressErrorMessage("Proof Of Address is required");
+    }
+
+    if (!values.socialSecurityNumber){
+      valid = false;
+      setSocialSecurityNumberError(true);
+      setSocialSecurityNumberErrorMessage("Social Security Number is required");
+    }
+
+    return valid;
+  }
+
+  return (
+    <form>
+      <div className="input_container">
+        <InputField 
+          name="preferredCommunication" 
+          type="text" 
+          onChange={onChangeHandler} 
+          label="Preferred Communication" 
+          placeholder="Preferred Communication"
+          error={preferredCommuninicationError}
+          errorMessage={preferredCommuninicationErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="telegram" 
+          type="text" 
+          onChange={onChangeHandler} 
+          label="Telegram" 
+          placeholder="Telegram"
+          error={telegramError}
+          errorMessage={telegramErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="address" 
+          type="text" 
+          onChange={onChangeHandler} 
+          label="Address" 
+          placeholder="Address"
+          error={addressError}
+          errorMessage={addressErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="employmentStatus"
+          type="select"
+          onChange={onChangeHandler}
+          label="Employment Status"
+          placeholder="Employment Status"
+          error={employmentStatusError}
+          errorMessage={employmentStatusErrorMessage}
+        >
+          <option value=""> -- Employment Status -- </option>
+          <option value="Employed">Employed</option>
+          <option value="Self Employed">Self Employed</option>
+          <option value="Unemployed">Unemployed</option>
+          <option value="Student">Student</option>
+        </InputField>
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="sourceOfFunds"
+          type="select"
+          onChange={onChangeHandler}
+          label="Source Of Funds"
+          placeholder="Source Of Funds"
+          error={sourceOfFundsError}
+          errorMessage={sourceOfFundsErrorMessage}
+        >
+          <option value=""> -- Source Of Funds -- </option>
+          <option value="Capital/Savings">Capital/Savings</option>
+          <option value="Bonus">Bonus</option>
+          <option value="Existing Account">Existing Account</option>
+          <option value="Salary">Salary</option>
+          <option value="Inheritance">Inheritance</option>
+          <option value="Others">Others</option>
+        </InputField>
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="occupation"
+          type="select"
+          onChange={onChangeHandler}
+          label="Occupation"
+          placeholder="Occupation"
+          error={occupationError}
+          errorMessage={occupationErrorMessage}
+        >
+          {getOccupations()}
+        </InputField>
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="purposeOfEscrowAccount"
+          type="text" 
+          onChange={onChangeHandler} 
+          label="Purpose Of Escrow Account"
+          placeholder="Please state your purpose of opening an EscrowBlock Account"
+          error={purposeOfEscrowAccountError}
+          errorMessage={purposeOfEscrowAccountErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="socialSecurityNumber"
+          type="number" 
+          onChange={onChangeHandler} 
+          label="Social Security Number (Applicable to US Citizens)"
+          placeholder="Social Security Number (Applicable to US Citizens)"
+          error={socialSecurityNumberError}
+          errorMessage={socialSecurityNumberErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="expectedTransactionSizePerTrade"
+          type="number" 
+          onChange={onChangeHandler} 
+          label="Expected Transaction Size Per Trade"
+          placeholder="Expected Transaction Size Per Trade"
+          error={expectedTransactionSizePerTradeError}
+          errorMessage={expectedTransactionSizePerTradeErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="identification"
+          type="file" 
+          onChange={onChangeHandler} 
+          label="Upload Any Government ID (International Passport, Driver's license or any recognized Government ID)"
+          error={identificationError}
+          errorMessage={identificationErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="proofOfAddress"
+          type="file" 
+          onChange={onChangeHandler} 
+          label="Upload Proof Of Address"
+          error={proofOfAddressError}
+          errorMessage={proofOfAddressErrorMessage}
+        />
+      </div>
+      <div className="input_container" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+        Already a user?<pre>{" "}</pre><Link to="/login" className="login-link">Click here to Login</Link>
+        <button className="button gap">Submit</button>
+      </div>
+    </form>
+  )
 }
 
 function getOccupations(){
