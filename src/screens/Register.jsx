@@ -288,6 +288,7 @@ export default function RegisterIndividual() {
     expectedTransactionSizePerTrade: "",
     identification: null,
     proofOfAddress: null,
+    bankStatement: null,
     password: "",
     confirmPassword: ""
   });
@@ -577,6 +578,7 @@ function Form1({
 
     if (valid){
       setLoading(true);
+
       let userData = new FormData();
       values.userName && userData.append("userName", values.userName);
       values.firstName && userData.append("firstName", values.firstName);
@@ -899,13 +901,33 @@ function Form2({
   const [proofOfAddressErrorMessage, setProofOfAddressErrorMessage] = useState("");
   const [socialSecurityNumberError, setSocialSecurityNumberError] = useState(false);
   const [socialSecurityNumberErrorMessage, setSocialSecurityNumberErrorMessage] = useState("");
+  const [bankStatementError, setBankStatementError] = useState(false);
+  const [bankStatementErrorMessage, setBankStatementErrorMessage] = useState("");
 
   const onChangeHandler = (e) => {
     let name = e.target.name;
-    let value = e.target.value;
+    let value = null;
 
     clearError(name);
     
+    switch(name){
+      case "identification":
+        value = e.target.files[0]
+        break;
+
+      case "proofOfAddress":
+        value = e.target.files[0];
+        break;
+
+      case "bankStatement":
+        value = e.target.files[0];
+        break;
+
+      default:
+        value = e.target.value;
+        break;
+    }
+
     setValues({...values, [name]: value});
   };
 
@@ -958,6 +980,11 @@ function Form2({
     if (name === "proofOfAddress"){
       setProofOfAddressError(false);
       setProofOfAddressErrorMessage("");
+    }
+
+    if (name === "bankStatement"){
+      setBankStatementError(false);
+      setBankStatementErrorMessage("");
     }
 
     if (name === "socialSecurityNumber"){
@@ -1029,6 +1056,12 @@ function Form2({
       setProofOfAddressErrorMessage("Proof Of Address is required");
     }
 
+    if (!values.bankStatement){
+      valid = false;
+      setBankStatementError(true);
+      setBankStatementErrorMessage("Bank Statement is required");
+    }
+
     if (!values.socialSecurityNumber){
       valid = false;
       setSocialSecurityNumberError(true);
@@ -1040,7 +1073,8 @@ function Form2({
 
   async function SignUp2(event) {
     event.preventDefault();
-    console.log(values);
+
+    console.log(authHelper.getForm()._id);
 
     let valid = validateSecondForm();
 
@@ -1056,6 +1090,10 @@ function Form2({
       values.sourceOfFunds && userData.append("sourceOfFunds", values.sourceOfFunds);
       values.expectedTransactionSizePerTrade && userData.append("expectedTransactionSizePerTrade", values.expectedTransactionSizePerTrade);
       values.address && userData.append("address", values.address);
+      values.bankStatement && userData.append("bankStatement", values.bankStatement);
+      values.identification && userData.append("identification", values.identification);
+      values.proofOfAddress && userData.append("proofOfAddress", values.proofOfAddress);
+      values.bankStatement && userData.append("bankStatement", values.bankStatement);
       userData.append("id", authHelper.getForm()._id);
 
       const abortController = new AbortController();
@@ -1249,6 +1287,16 @@ function Form2({
           label="Upload Proof Of Address"
           error={proofOfAddressError}
           errorMessage={proofOfAddressErrorMessage}
+        />
+      </div>
+      <div className="input_container">
+        <InputField 
+          name="bankStatement"
+          type="file" 
+          onChange={onChangeHandler} 
+          label="Bank Statement"
+          error={bankStatementError}
+          errorMessage={bankStatementErrorMessage}
         />
       </div>
       <div className="input_container" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>

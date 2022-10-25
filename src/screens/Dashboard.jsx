@@ -11,6 +11,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 import { Col, Row, Card, Form, Button, InputGroup } from '@themesberg/react-bootstrap';
 
+import IdentificationView from "../components/IdentificationView";
+import POAView from "../components/POAView";
+import BankStatementView from "../components/BankStatementView";
+
 import authHelper from "../helper/auth-helper";
 import {getUrl} from "../helper/url-helper";
 
@@ -23,9 +27,24 @@ function GeneralInfoForm({user, index, drop}){
 
   return (
     <Card border="light" className="bg-white shadow-sm mb-4 w-100">
-      <Card.Body>
+      <Card.Body 
+        style={{backgroundColor: "rgb(241 197 71 / 37%)", maxWidth: 1000, margin: "20px auto"}}>
         <h5 className="mb-4">General information</h5>
-        <Form>
+        <Form className="dash-form">
+        <Row>
+            <Col md={6} className="mb-3">
+              <Form.Group id="firstName">
+                <Form.Label>User Name</Form.Label>
+                <Form.Control required type="text" value={user.userName}/>
+              </Form.Group>
+            </Col>
+            <Col md={6} className="mb-3">
+              <Form.Group id="lastName">
+                <Form.Label>Role</Form.Label>
+                <Form.Control required type="text" placeholder="Also your last name" value={user.role}/>
+              </Form.Group>
+            </Col>
+          </Row>
           <Row>
             <Col md={6} className="mb-3">
               <Form.Group id="firstName">
@@ -84,93 +103,96 @@ function GeneralInfoForm({user, index, drop}){
               </Form.Group>
             </Col>
           </Row>
-
-          <h5 className="my-4">Address</h5>
           <Row>
-            <Col sm={9} className="mb-3">
+            <Col sm={12} className="mb-3">
+              <Form.Group id="address">
+                <Form.Label>Telegram</Form.Label>
+                <Form.Control required type="text" placeholder="Enter your home address" value={user.telegram}/>
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={6} className="mb-3">
+              <Form.Group id="emal">
+                <Form.Label>Country</Form.Label>
+                <Form.Control required type="text" value={user.country}/>
+              </Form.Group>
+            </Col>
+            <Col md={6} className="mb-3">
+              <Form.Group id="phone">
+                <Form.Label>Occupation</Form.Label>
+                <Form.Control required type="text" value={user.occupation}/>
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={6} className="mb-3">
+              <Form.Group id="emal">
+                <Form.Label>Employment Status</Form.Label>
+                <Form.Control required type="text" value={user.employmentStatus}/>
+              </Form.Group>
+            </Col>
+            <Col md={6} className="mb-3">
+              <Form.Group id="phone">
+                <Form.Label>Preferred Communication</Form.Label>
+                <Form.Control required type="text" value={user.preferredCommunication}/>
+              </Form.Group>
+            </Col>
+          </Row>
+
+          <Row>
+            <Col sm={12} className="mb-3">
               <Form.Group id="address">
                 <Form.Label>Address</Form.Label>
                 <Form.Control required type="text" placeholder="Enter your home address" value={user.address}/>
               </Form.Group>
             </Col>
-            <Col sm={3} className="mb-3">
-              <Form.Group id="addressNumber">
-                <Form.Label>Number</Form.Label>
-                <Form.Control required type="number" placeholder="No." />
+          </Row>
+          <Row>
+            <Col sm={12} className="mb-3">
+              <Form.Group id="address">
+                <Form.Label>Purpose Of Escrow Account</Form.Label>
+                <Form.Control required type="text" placeholder="Enter your home address" value={user.purposeOfEscrowAccount}/>
               </Form.Group>
             </Col>
           </Row>
           <Row>
-            <Col sm={4} className="mb-3">
-              <Form.Group id="city">
-                <Form.Label>City</Form.Label>
-                <Form.Control required type="text" placeholder="City" />
+            <Col sm={12} className="mb-3">
+              <Form.Group id="address">
+                <Form.Label>Source Of Funds</Form.Label>
+                <Form.Control required type="text" placeholder="Enter your home address" value={user.sourceOfFunds}/>
               </Form.Group>
             </Col>
-            <Col sm={4} className="mb-3">
-              <Form.Group className="mb-2">
-                <Form.Label>Select state</Form.Label>
-                <Form.Select id="state" defaultValue="0">
-                  <option value="0">State</option>
-                  <option value="AL">Alabama</option>
-                  <option value="AK">Alaska</option>
-                  <option value="AZ">Arizona</option>
-                  <option value="AR">Arkansas</option>
-                  <option value="CA">California</option>
-                  <option value="CO">Colorado</option>
-                  <option value="CT">Connecticut</option>
-                  <option value="DE">Delaware</option>
-                  <option value="DC">District Of Columbia</option>
-                  <option value="FL">Florida</option>
-                  <option value="GA">Georgia</option>
-                  <option value="HI">Hawaii</option>
-                  <option value="ID">Idaho</option>
-                  <option value="IL">Illinois</option>
-                  <option value="IN">Indiana</option>
-                  <option value="IA">Iowa</option>
-                  <option value="KS">Kansas</option>
-                  <option value="KY">Kentucky</option>
-                  <option value="LA">Louisiana</option>
-                  <option value="ME">Maine</option>
-                  <option value="MD">Maryland</option>
-                  <option value="MA">Massachusetts</option>
-                  <option value="MI">Michigan</option>
-                  <option value="MN">Minnesota</option>
-                  <option value="MS">Mississippi</option>
-                  <option value="MO">Missouri</option>
-                  <option value="MT">Montana</option>
-                  <option value="NE">Nebraska</option>
-                  <option value="NV">Nevada</option>
-                  <option value="NH">New Hampshire</option>
-                  <option value="NJ">New Jersey</option>
-                  <option value="NM">New Mexico</option>
-                  <option value="NY">New York</option>
-                  <option value="NC">North Carolina</option>
-                  <option value="ND">North Dakota</option>
-                  <option value="OH">Ohio</option>
-                  <option value="OK">Oklahoma</option>
-                  <option value="OR">Oregon</option>
-                  <option value="PA">Pennsylvania</option>
-                  <option value="RI">Rhode Island</option>
-                  <option value="SC">South Carolina</option>
-                  <option value="SD">South Dakota</option>
-                  <option value="TN">Tennessee</option>
-                  <option value="TX">Texas</option>
-                  <option value="UT">Utah</option>
-                  <option value="VT">Vermont</option>
-                  <option value="VA">Virginia</option>
-                  <option value="WA">Washington</option>
-                  <option value="WV">West Virginia</option>
-                  <option value="WI">Wisconsin</option>
-                  <option value="WY">Wyoming</option>
-                </Form.Select>
+          </Row>
+          <Row>
+            <Col sm={12} className="mb-3">
+              <Form.Group id="address">
+                <Form.Label>Expected Transaction Size Per Trade</Form.Label>
+                <Form.Control required type="text" placeholder="Enter your home address" value={user.expectedTransactionSizePerTrade}/>
               </Form.Group>
             </Col>
-            <Col sm={4}>
-              <Form.Group id="zip">
-                <Form.Label>ZIP</Form.Label>
-                <Form.Control required type="tel" placeholder="ZIP" />
-              </Form.Group>
+          </Row>
+          <Row>
+            <Col sm={4} className="mb-3" style={{width: "40%"}}>
+              <h2 className="my-3">Identification</h2>
+              <IdentificationView 
+                user={user} 
+                type={user.identification.contentType}
+              />
+            </Col>
+            <Col sm={4} className="mb-3 ms-6" style={{width: "40%"}}>
+              <h2 className="my-3">Proof Of Address</h2>
+              <POAView 
+                user={user} 
+                type={user.proofOfAddress.contentType}
+              />
+            </Col>
+            <Col sm={4} className="mb-3" style={{width: "40%"}}>
+              <h2 className="my-3">Bank Statement</h2>
+              <BankStatementView 
+                user={user}
+                type={user.bankStatement.contentType}
+              />
             </Col>
           </Row>
         </Form>
@@ -290,7 +312,6 @@ function UserEntry() {
     }
 
     let t = getInfo();
-    console.log(t);
   }, [])
 
   return (

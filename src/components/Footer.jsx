@@ -137,6 +137,15 @@ export default function Footer() {
           >
             Guide
           </Link>
+          <Link
+            to="/contact-us"
+            onClick={() => {
+              window.scrollTo(0, 0);
+            }}
+            className="footer_maincontainercontententrywrapper_entry"
+          >
+            Contact Us
+          </Link>
         </div>
         <div className="footer_maincontainercontententry_wrapper">
           <div className="footer_maincontainercontententry_heading">

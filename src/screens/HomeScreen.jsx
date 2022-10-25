@@ -103,7 +103,7 @@ export default function HomeScreen({setNoHeaderFooter}) {
       <HomeSectionSwiperEntry />
       <Marquee
         delay={0}
-        speed={50}
+        speed={0.12}
         pauseOnHover
         style={{
           backgroundColor: "#ffbc00",

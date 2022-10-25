@@ -7,6 +7,11 @@
   scroll-behavior: smooth;
   font-family: "Jost", sans-serif;
 }
+
+input{
+  color: black !important;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -1250,8 +1255,52 @@ input:-webkit-autofill:active {
   color: #ffbc00;
 }
 
+.contact-us-input{
+  box-shadow: 0 10px 30px rgb(0 0 0 / 10%);
+  border: none !important;
+}
+
+.contact-us-textarea{
+  font-size: medium !important;
+  height: 130px;
+}
+
+.pdf-container canvas{
+  position: relative;
+  width: 400px !important;
+  height: 400px !important;
+  border-radius: 10px !important;
+}
+
+.pdf-modal canvas{
+  margin: 10px auto;
+  width: 740px !important;
+  border-radius: 5px;
+  margin-bottom: 50px;
+}
+
+.react-pdf__Page{
+  height: 100% !important;
+  color: black !important;
+}
+
+.react-pdf__Page__textContent{
+  width: 90% !important;
+  height: 90% !important;
+}
+
 body{
   background-color: white !important;
+}
+
+.dash-form .form-label{
+  color: black !important;
+}
+
+.paginate-style{
+  position: absolute;
+  bottom: -5px;
+  left: 47%;
 }
 
 .react-date-picker__wrapper{

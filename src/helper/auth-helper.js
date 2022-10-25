@@ -32,7 +32,7 @@ function setFirstForm(values){
 
 function isFirstDone(){
   if (localStorage.getItem("firstForm")){
-    return JSON.parse(localStorage.getItem("firstForm")).firstForm;
+    return JSON.parse(localStorage.getItem("firstForm"))["_doc"].firstForm;
   }else{
     return false;
   }
@@ -40,7 +40,7 @@ function isFirstDone(){
 
 function getForm(){
   if (localStorage.getItem("firstForm")){
-    return JSON.parse(localStorage.getItem("firstForm"));
+    return JSON.parse(localStorage.getItem("firstForm"))["_doc"];
   }else{
     return false;
   }

@@ -114,10 +114,10 @@ export default function BuyBitCoin({setNoHeaderFooter}) {
                     setValues({...values, paymentAmount: e.target.value});
                     if (e.target.value > 0){
                       setTempPrice(price * e.target.value)
-                   }else if (e.target.value === ""){
+                    }else if (e.target.value === ""){
                       setTempPrice(price)
-                   }
-                 }}
+                    }
+                  }}
                   min={0}
                 />
               </>

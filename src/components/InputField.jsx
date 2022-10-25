@@ -87,6 +87,25 @@ export default function InputField({
     )
   }
 
+  if (type === "file"){
+    return (
+      <>
+        <label htmlFor={name}>{label}</label>
+        <input 
+          onChange={onChange} 
+          className="sign_up_form_input_text"
+          placeholder={placeholder}
+          id={name}
+          type={type}
+          name={name}
+          style={{borderColor: error ? "red" : ""}}
+          accept="image/*, application/pdf"
+        />
+        {error && <p style={{color: "red"}}>{errorMessage}</p>}
+      </>
+    )
+  }
+
   if (type === "password"){
     return (
       <>
