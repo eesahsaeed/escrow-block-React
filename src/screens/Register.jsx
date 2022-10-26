@@ -274,7 +274,7 @@ export default function RegisterIndividual() {
     middleName: "",
     lastName: "",
     email: "",
-    preferredCommunication: "",
+    preferredCommunication: "Telegram",
     gender: "Male",
     country: "",
     phoneNumber: "",
@@ -883,6 +883,8 @@ function Form2({
   const [preferredCommuninicationErrorMessage, setPreferredCommunicationErrorMessage] = useState("");
   const [telegramError, setTelegramError] = useState(false);
   const [telegramErrorMessage, setTelegramErrorMessage] = useState("")
+  const [whatsAppError, setWhatsAppError] = useState(false);
+  const [whatsAppErrorMessage, setWhatsAppErrorMessage] = useState("")
   const [addressError, setAddressError] = useState(false);
   const [addressErrorMessage, setAddressErrorMessage] = useState("");
   const [employmentStatusError, setEmploymentStatusError] = useState(false);
@@ -940,6 +942,11 @@ function Form2({
     if (name === "telegram"){
       setTelegramError(false);
       setTelegramErrorMessage("");
+    }
+
+    if (name === "whatsApp"){
+      setWhatsAppError(false);
+      setWhatsAppErrorMessage("");
     }
 
     if (name === "employmentStatus"){
@@ -1002,10 +1009,16 @@ function Form2({
       setPreferredCommunicationErrorMessage("Preferred Communication is required");
     }
 
-    if (!values.telegram){
+    if (!values.telegram && values.preferredCommunication === "Telegram"){
       valid = false;
       setTelegramError(true);
       setTelegramErrorMessage("Telegram is required");
+    }
+
+    if (!values.whatsApp && values.preferredCommunication === "WhatsApp"){
+      valid = false;
+      setWhatsAppError(true);
+      setWhatsAppErrorMessage("WhatsApp is required");
     }
 
     if (!values.employmentStatus){
@@ -1094,6 +1107,7 @@ function Form2({
       values.identification && userData.append("identification", values.identification);
       values.proofOfAddress && userData.append("proofOfAddress", values.proofOfAddress);
       values.bankStatement && userData.append("bankStatement", values.bankStatement);
+      values.whatsApp && userData.append("whatsApp", values.whatsApp);
       userData.append("id", authHelper.getForm()._id);
 
       const abortController = new AbortController();
@@ -1124,7 +1138,7 @@ function Form2({
         if (data.success){
           setLoading(false);
           authHelper.clearForm();
-          navigate("/login");
+          navigate(`/welcome/${data.user["_doc"].firstName}`);
           window.scrollTo({
             top: 0,
             behavior: "smooth",
@@ -1157,24 +1171,35 @@ function Form2({
       <div className="input_container">
         <InputField 
           name="preferredCommunication" 
-          type="text" 
+          type="select" 
           onChange={onChangeHandler} 
           label="Preferred Communication" 
           placeholder="Preferred Communication"
           error={preferredCommuninicationError}
           errorMessage={preferredCommuninicationErrorMessage}
-        />
+        >
+          <option value="Telegram">Telegram</option>
+          <option value="WhatsApp">WhatsApp</option>
+        </InputField>
       </div>
       <div className="input_container">
-        <InputField 
+        {values.preferredCommunication === "WhatsApp" ? <InputField 
+          name="whatsApp" 
+          type="text" 
+          onChange={onChangeHandler} 
+          label="WhatsApp" 
+          placeholder="WhatsApp"
+          error={whatsAppError}
+          errorMessage={whatsAppErrorMessage}
+        /> : <InputField 
           name="telegram" 
           type="text" 
           onChange={onChangeHandler} 
-          label="Telegram" 
-          placeholder="Telegram (If Any)"
+          label="Telegram User Name or ID" 
+          placeholder="Telegram"
           error={telegramError}
           errorMessage={telegramErrorMessage}
-        />
+        />}
       </div>
       <div className="input_container">
         <InputField 
@@ -1324,6 +1349,7 @@ function getOccupations(){
       <option value="Pharmacist">-  Pharmacist</option>
       <option value="Physician">-  Physician</option>
       <option value="Physician Assistant">-  Physician Assistant</option>
+      <option value="Trader">-  Trader</option>
       <option value="Podiatrist">-  Podiatrist</option>
       <option value="Registered Nurse">-  Registered Nurse</option>
       <option value="Therapist">-  Therapist</option>

@@ -582,6 +582,18 @@ input{
   top: 33px;
   right: 10px;
 }
+
+.welcome-col{
+  margin-top: 200px !important;
+  margin-bottom: 100px !important;
+}
+
+.visible_password-login{
+  position: absolute;
+  padding: 5px 10px;
+  top: 10px;
+  right: 0px;
+}
 #checkbox1{
   display: none;
 }
@@ -2047,6 +2059,18 @@ body{
 @media (max-width: 700px) {
   .about_us_forex{
     margin-top: 0px !important;
+  }
+
+  .welcome-col{
+    margin-top: 300px;
+  }
+
+  .wc-2{
+    margin-top: 50px !important;
+  }
+
+  .wc-1{
+    margin-top: 400px !important;
   }
 
   .sign_up_form{
