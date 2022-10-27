@@ -1,5 +1,5 @@
 
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import waveBG from "../assets/waveBg.svg";
 import InputBox from "../components/InputBox";
@@ -292,7 +292,6 @@ export default function RegisterIndividual() {
     password: "",
     confirmPassword: ""
   });
-  const [firstTabDisabled, setFirstTabDisabled] = useState(authHelper.isFirstDone());
   const [secondTabDisabled, setSecondTabDisabled] = useState(!authHelper.isFirstDone());
 
   const [loading, setLoading] = useState(false);
@@ -326,7 +325,6 @@ export default function RegisterIndividual() {
                 <button 
                   className="sign_up_tab_button" 
                   onClick={() => setForm("first")}
-                  disabled={firstTabDisabled}
                 >
                   {form === "first" ? <div>
                     <div>
@@ -341,7 +339,7 @@ export default function RegisterIndividual() {
                   </div> : <div>
                     <div>
                       <svg width="22" height="22" viewBox="0 0 74 74" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M37.25 6.125C20.345 6.125 6.625 19.845 6.625 36.75C6.625 53.655 20.345 67.375 37.25 67.375C54.155 67.375 67.875 53.655 67.875 36.75C67.875 19.845 54.155 6.125 37.25 6.125ZM37.25 61.25C23.7137 61.25 12.75 50.2863 12.75 36.75C12.75 23.2137 23.7137 12.25 37.25 12.25C50.7863 12.25 61.75 23.2137 61.75 36.75C61.75 50.2863 50.7863 61.25 37.25 61.25Z" fill={firstTabDisabled ? "gray" : "#FFBC00"}></path>
+                        <path d="M37.25 6.125C20.345 6.125 6.625 19.845 6.625 36.75C6.625 53.655 20.345 67.375 37.25 67.375C54.155 67.375 67.875 53.655 67.875 36.75C67.875 19.845 54.155 6.125 37.25 6.125ZM37.25 61.25C23.7137 61.25 12.75 50.2863 12.75 36.75C12.75 23.2137 23.7137 12.25 37.25 12.25C50.7863 12.25 61.75 23.2137 61.75 36.75C61.75 50.2863 50.7863 61.25 37.25 61.25Z" fill="gray"></path>
                       </svg>
                     </div>
                     <div className="sign_up_tab_info">
@@ -370,7 +368,7 @@ export default function RegisterIndividual() {
                   </div> : <div>
                     <div>
                       <svg width="22" height="22" viewBox="0 0 74 74" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M37.25 6.125C20.345 6.125 6.625 19.845 6.625 36.75C6.625 53.655 20.345 67.375 37.25 67.375C54.155 67.375 67.875 53.655 67.875 36.75C67.875 19.845 54.155 6.125 37.25 6.125ZM37.25 61.25C23.7137 61.25 12.75 50.2863 12.75 36.75C12.75 23.2137 23.7137 12.25 37.25 12.25C50.7863 12.25 61.75 23.2137 61.75 36.75C61.75 50.2863 50.7863 61.25 37.25 61.25Z" fill={secondTabDisabled ? "gray" : "#FFBC00"}></path>
+                        <path d="M37.25 6.125C20.345 6.125 6.625 19.845 6.625 36.75C6.625 53.655 20.345 67.375 37.25 67.375C54.155 67.375 67.875 53.655 67.875 36.75C67.875 19.845 54.155 6.125 37.25 6.125ZM37.25 61.25C23.7137 61.25 12.75 50.2863 12.75 36.75C12.75 23.2137 23.7137 12.25 37.25 12.25C50.7863 12.25 61.75 23.2137 61.75 36.75C61.75 50.2863 50.7863 61.25 37.25 61.25Z" fill="gray"></path>
                       </svg>
                     </div>
                     <div className="sign_up_tab_info">
@@ -715,6 +713,179 @@ function Form1({
     }
   }
 
+  async function update1(event) {
+    event.preventDefault();
+    console.log(values);
+
+    let valid = validateFirstForm();
+
+    if (valid){
+      setLoading(true);
+
+      let userData = new FormData();
+      values.userName && userData.append("userName", values.userName);
+      values.firstName && userData.append("firstName", values.firstName);
+      values.lastName && userData.append("lastName", values.lastName);
+      values.middleName && userData.append("middleName", values.middleName);
+      values.email && userData.append("email", values.email);
+      values.gender && userData.append("gender", values.gender);
+      values.country && userData.append("country", values.country);
+      values.phoneNumber && userData.append("phoneNumber", values.phoneNumber);
+      values.dateOfBirth && userData.append("dateOfBirth", values.dateOfBirth);
+      values.password && userData.append("password", values.password);
+      values.confirmPassword && userData.append("confirmPassword", values.confirmPassword);
+      userData.append("id", authHelper.getForm()._id);
+
+      const abortController = new AbortController();
+      const signal = abortController.signal;
+
+      async function updateUser(user){
+        try{
+        let response = await fetch(`${getUrl()}/users/update-user`, {
+            method: "POST",
+            headers: {
+              "Accept": "application/json"
+            },
+            body: user
+          })
+
+          return await response.json();
+        } catch(err){
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        }
+      }
+
+      updateUser(userData).then(data => {
+        console.log(data);
+
+        if (data.success){
+          console.log(data.data);
+          setLoading(false);
+          setForm("second");
+          authHelper.setFirstForm(data.data);
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        } else if (data.errors){
+          let errors = Object.keys(data.errors);
+
+          for (let i = 0; i < errors.length; i++){
+            let name = errors[i];
+
+            if (name === "userName"){
+              setUserNameError(true);
+              setUserNameErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "firstName"){
+              setFirstNameError(true);
+              setFirstNameErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "lastName"){
+              setLastNameError(true);
+              setLastNameErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "email"){
+              setEmailError(true);
+              setEmailErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "gender"){
+              setGenderError(true);
+              setGenderErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "country"){
+              setCountryError(true);
+              setCountryErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "phoneNumber"){
+              setPhoneNumberError(true);
+              setPhoneNumberErrorMessage(data.errors[errors[i]].message);
+            }
+        
+            if (name === "dateOfBirth"){
+              setDateOfBirthError(true);
+              setDateOfBirthErrorMessage(data.errors[errors[i]].message)
+            }
+        
+            if (name === "password"){
+              setPasswordError(true);
+              setPasswordErrorMessage(data.errors[errors[i]].message);
+            }
+
+            if (name === "confirmPassword"){
+              setConfirmPasswordError(true);
+              setConfirmPasswordErrorMessage(data.errors[errors[i]].message);
+            }
+          }
+          setLoading(false);
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        } else if (data.message){
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        } else {
+          console.log(data);
+          setLoading(false);
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        }
+      }).catch(err => {
+        setLoading(false);
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      })
+    } else {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      })
+    }
+  }
+
+  let {
+    userName, 
+    firstName,
+    lastName,
+    middleName,
+    email,
+    gender,
+    country,
+    phoneNumber,
+    dateOfBirth
+  } = authHelper.getForm();
+
+  useEffect(() => {
+    setValues({
+      ...values, 
+      userName, 
+      firstName,
+      lastName,
+      middleName,
+      email,
+      gender,
+      country,
+      phoneNumber, 
+      dateOfBirth: new Date(dateOfBirth),
+    });
+  }, []);
+
   return (
     <form style={{position: "relative"}}>
       <div className="input_container">
@@ -726,6 +897,7 @@ function Form1({
           placeholder="User Name"
           error={userNameError}
           errorMessage={userNameErrorMessage}
+          defaultValue={userName ? userName : ""}
         />
       </div>
       <div className="input_container">
@@ -737,6 +909,7 @@ function Form1({
           placeholder="First Name"
           error={firstNameError}
           errorMessage={firstNameErrorMessage}
+          defaultValue={firstName ? firstName : ""}
         />
       </div>
       <div className="input_container">
@@ -748,6 +921,7 @@ function Form1({
           placeholder="Last Name"
           error={lastNameError}
           errorMessage={lastNameErrorMessage}
+          defaultValue={lastName ? lastName : ""}
         />
       </div>
       <div className="input_container">
@@ -759,6 +933,7 @@ function Form1({
           placeholder="Middle Name (Optional)"
           error={false}
           errorMessage={""}
+          defaultValue={middleName ? middleName : ""}
         />
       </div>
       <div className="input_container">
@@ -770,6 +945,7 @@ function Form1({
           placeholder="Email"
           error={emailError}
           errorMessage={emailErrorMessage}
+          defaultValue={email ? email : ""}
         />
       </div>
       <div className="input_container">
@@ -781,6 +957,7 @@ function Form1({
           placeholder="Gender"
           error={genderError}
           errorMessage={genderErrorMessage}
+          defaultValue={gender ? gender : ""}
         >
           <option value="Male">Male</option>
           <option value="Female">Female</option>
@@ -795,9 +972,10 @@ function Form1({
           placeholder="Gender"
           error={countryError}
           errorMessage={countryErrorMessage}
+          defaultValue={country ? country : ""}
         >
-          {countries.map((country, i) => (
-            <option value={country.name}>{country.name}</option>
+          {countries.map((c, i) => (
+            <option value={c.name}>{c.name}</option>
           ))}
         </InputField>
       </div>
@@ -809,6 +987,7 @@ function Form1({
           label="Phone Number"
           error={phoneNumberError}
           errorMessage={phoneNumberErrorMessage}
+          value={values.phoneNumber}
         />
       </div>
       <div className="input_container">
@@ -862,10 +1041,13 @@ function Form1({
       </div>
       <div className="input_container" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
         Already a user?<pre>{" "}</pre><Link to="/login" className="login-link">Click here to Login</Link>
-        <button 
+        {authHelper.isFirstDone() ? <button 
           className="button gap" 
-          onClick={SignUp1}
-        >Register Now</button>
+          onClick={update1}
+        >Update</button> : <button 
+        className="button gap" 
+        onClick={SignUp1}
+      >Register Now</button>}
       </div>
     </form>
   )

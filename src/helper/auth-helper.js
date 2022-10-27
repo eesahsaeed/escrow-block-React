@@ -42,13 +42,27 @@ function getForm(){
   if (localStorage.getItem("firstForm")){
     return JSON.parse(localStorage.getItem("firstForm"))["_doc"];
   }else{
-    return false;
+    return {};
   }
 }
 
 function clearForm(){
   if (typeof window !== "undefined"){
-    localStorage.removeItem("firstForm");
+    localStorage.setItem("firstForm", JSON.stringify({
+      _doc:{
+        userName: "", 
+        firstName: "",
+        lastName: "",
+        middleName: "",
+        email: "",
+        gender: "Male",
+        country: "",
+        phoneNumber: "",
+        dateOfBirth: new Date(),
+        firstForm: false,
+        _id: ""
+      }
+    }));
   }
 }
 

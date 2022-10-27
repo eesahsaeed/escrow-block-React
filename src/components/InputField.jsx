@@ -17,6 +17,7 @@ export default function InputField({
   placeholder,
   value = "",
   label = "",
+  defaultValue = "",
   children
 }){
   const [visible, setVisible] = useState(false);
@@ -57,6 +58,7 @@ export default function InputField({
           id={name}
           name={name}
           style={{borderColor: error ? "red" : ""}}
+          defaultValue={defaultValue}
         >
           {children}
         </select>
@@ -77,10 +79,12 @@ export default function InputField({
             inputProps={{
               name: name
             }}
+            value={value}
             country={"af"}
             className="start__up__container__form__input__box__field no-border"
             onChange={(v, c, e) => onChange(e)}
-            countryCodeEditable={false}/>
+            countryCodeEditable={false}
+          />
         </div>
         {error && <p style={{color: "red"}}>{errorMessage}</p>}
       </>
@@ -100,6 +104,7 @@ export default function InputField({
           name={name}
           style={{borderColor: error ? "red" : ""}}
           accept="image/*, application/pdf"
+          defaultValue={defaultValue}
         />
         {error && <p style={{color: "red"}}>{errorMessage}</p>}
       </>
@@ -118,6 +123,7 @@ export default function InputField({
           type={visible ? "text" : type}
           name={name}
           style={{borderColor: error ? "red" : ""}}
+          defaultValue={defaultValue}
         />
         <div className="visible_password" onClick={() => {
           setVisible(!visible)
@@ -151,6 +157,7 @@ export default function InputField({
         type={type}
         name={name}
         style={{borderColor: error ? "red" : ""}}
+        defaultValue={defaultValue}
       />
       {error && <p style={{color: "red"}}>{errorMessage}</p>}
     </>
