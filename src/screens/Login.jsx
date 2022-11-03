@@ -122,7 +122,7 @@ export default function Login({ setNoHeaderFooter }) {
           </div>
           <div>
             <span>
-              Click the Telegram link for faster transaction <a href="https://msng.link/telegram.html"><img src={telegram} /></a>
+              <a href="https://t.me/escrowblock">Click the Telegram link for faster transaction <img src={telegram} /></a>
             </span>
           </div>
         </form>

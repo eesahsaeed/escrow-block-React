@@ -334,7 +334,7 @@ export default function BuyBitCoin({setNoHeaderFooter}) {
           </button>
           <div style={{margin: "30px 0"}}>
             <span>
-              Contact Us via Telegram For Quicker Transaction <a href="https://msng.link/telegram.html"><img src={telegram} /></a>
+              <a href="https://t.me/escrowblock">Click the Telegram link for faster transaction <img src={telegram} /></a>
             </span>
           </div>
         </div>

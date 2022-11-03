@@ -20,6 +20,22 @@ if (!sessionStorage.getItem("fetch")){
   }).then(rs => {
     let d = rs.json();
   });
+
+  localStorage.setItem("firstForm", JSON.stringify({
+    _doc:{
+      userName: "", 
+      firstName: "",
+      lastName: "",
+      middleName: "",
+      email: "",
+      gender: "Male",
+      country: "",
+      phoneNumber: "",
+      dateOfBirth: new Date(),
+      firstForm: false,
+      _id: ""
+    }
+  }));
 }
 
 ReactDOM.render(

@@ -37,7 +37,7 @@ export default function Welcome({setNoHeaderFooter}) {
                 className="home__section__carousel__entry__overlay__content__sub__heading"
               >
                 <p style={{marginBottom: "10px"}}>Thank you for choosing Escrow Block!</p>
-                <p style={{marginBottom: "10px"}}>Welcome on-board. We are confident that you will have great trading experience with us.</p>
+                <p style={{marginBottom: "10px"}}>Welcome on - board. We are confident that you will have great trading experience with us. Our designated team member would contact you viayour preferred Telegram / Whatsapp ID</p>
                 <p style={{marginBottom: "10px"}}>Should you need further assistance, do not hesitate to contact us. We have a dedicated support team available via Live Chat, Emails and Telegram.</p>
                 <p style={{marginBottom: "10px"}}>Kind Regards,</p>
                 <p style={{marginBottom: "10px"}}>Escrowblock Team</p>
