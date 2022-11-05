@@ -1,19 +1,31 @@
 
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, {useState, useEffect} from "react";
+import {Link, useNavigate} from "react-router-dom";
 import sellBictvoinSvg from "../assets/sellBictvoinSvg.svg";
 import bitcoin from "../assets/bitcoin.svg";
 import InputBox from "../components/InputBox";
 import SelectBox from "../components/SelectBox";
 import CurrencyFormat from 'react-currency-format';
-import { Convert } from "easy-currencies";
+import {Convert} from "easy-currencies";
+import getSymbolFromCurrency from "currency-symbol-map";
+import getCurrencies from "currency-symbol-map/map";
+
+import {MdKeyboardArrowDown, MdKeyboardArrowUp} from "react-icons/md";
+
+import "flag-icons/css/flag-icons.min.css";
 
 import authHelper from "../helper/auth-helper";
-import { getUrl } from "../helper/url-helper";
+import {getUrl} from "../helper/url-helper";
+import countries from "../countries.json";
 
 export default function SellBitCoin({setNoHeaderFooter}) {
-  const [values, setValues] = useState({currency: "USD", paymentAmount: 0});
-  const [symbol, setSymbol] = useState('$');
+  const [currencies, setCurrencies] = useState(Object.keys(getCurrencies));
+  const [values, setValues] = useState({
+    currency: "USD", 
+    paymentAmount: 0,
+    bitcoinAmount: 0
+  });
+  const [symbol, setSymbol] = useState(getSymbolFromCurrency("USD"));
   const [selectCurrency, setSelectCurrency] = useState(false);
   const [price, setPrice] = useState(0);
   const [tempPrice, setTempPrice] = useState(0);
@@ -73,6 +85,11 @@ export default function SellBitCoin({setNoHeaderFooter}) {
     }
   }
 
+  function changeCurrency(e){
+    setSymbol(getSymbolFromCurrency(e.target.value));
+    setValues({...values, currency: e.target.value});
+  }
+
   return (
     <>
       <div style={{ marginTop: "4.6em" }} className="login__container__header">
@@ -108,9 +125,16 @@ export default function SellBitCoin({setNoHeaderFooter}) {
                   placeholder="Bitcoin"
                   className="buy__text__input"
                   onChange={(e) => {
-                    setValues({...values, paymentAmount: e.target.value});
+                    setValues({
+                      ...values, 
+                      bitcoinAmount: e.target.value
+                    });
                     if (e.target.value > 0){
                       setTempPrice(price * e.target.value)
+                      setValues({
+                        ...values, 
+                        paymentAmount: price * e.target.value
+                      })
                     }else if (e.target.value === ""){
                       setTempPrice(price)
                     }
@@ -230,33 +254,59 @@ export default function SellBitCoin({setNoHeaderFooter}) {
               className="start__up__container__form__input__box"
             >
               <div className="start__up__container__form__input__box__label">
+                <button onClick={() => {
+                  selectCurrency
+                    ? setSelectCurrency(false)
+                    : setSelectCurrency(true);
+                  }}
+                  className="currency-drop-btn"
+                >
+                  <span className="ci fi fi-gr"></span>
+                  <span className="cr-text">GBR</span>
+                  <span className="lcr-text">Australian Dollar</span>
+                  <span className="cr-drop">
+                    {!selectCurrency ? <MdKeyboardArrowDown/> : <MdKeyboardArrowUp/>}
+                  </span>
+                </button>
+              </div>
+              {selectCurrency ? (
+                <div 
+                  className="payments__entry__wrapper"
+                  style={{maxHeight: 300}}
+                >
+                  <div onClick={() => {
+                    setValues({...values, currency: "USD"});
+                    setSymbol("$")
+                  }}>
+                    <span className="fi fi-gr fis"></span>
+                  </div>
+                </div>
+              ) : null}
+              <div className="start__up__container__form__input__box__label">
                 I have (Amount to Change)
               </div>
               <div className="start__up__container__form__input__box__content">
-                <CurrencyFormat value={tempPrice} displayType={'text'} thousandSeparator={true} prefix={symbol} renderText={value => (
-                  <>
-                    <input
-                      type="text"
-                      placeholder="Bitcoin"
-                      className="start__up__container__form__input__box__field"
-                      value={value}
-                      onChange={(e) => {
-                        setValues({...values, paymentAmount: e.target.value});
-                        if (e.target.value > 0){
-                          setTempPrice(price * e.target.value)
-                        }else if (e.target.value === ""){
-                          setTempPrice(price)
-                        }
-                      }}
-                      readOnly
-                    />
-                  </>
-                )} />
-                <button
-                  onClick={() => {
-                    selectCurrency
-                      ? setSelectCurrency(false)
-                      : setSelectCurrency(true);
+                <CurrencyFormat 
+                  value={tempPrice} 
+                  displayType={'text'} 
+                  thousandSeparator={true} 
+                  prefix={symbol} 
+                  renderText={value => (
+                    <>
+                      <input
+                        type="text"
+                        placeholder="Bitcoin"
+                        className="start__up__container__form__input__box__field"
+                        value={value}
+                        readOnly
+                      />
+                    </>
+                  )} 
+                />
+                {/**<button onClick={() => {
+                  selectCurrency
+                    ? setSelectCurrency(false)
+                    : setSelectCurrency(true);
                   }}
                   className="input__btn"
                 >
@@ -280,42 +330,8 @@ export default function SellBitCoin({setNoHeaderFooter}) {
                     <line x1="21" y1="14" x2="3" y2="14"></line>
                     <line x1="21" y1="18" x2="3" y2="18"></line>
                   </svg>
-                </button>
+                </button> */}
               </div>
-              {selectCurrency ? (
-                <div className="payments__entry__wrapper">
-                  <button
-                    onClick={() => {
-                      setValues({...values, currency: "USD"});
-                      setSymbol("$")
-                    }}
-                    className="payments__entry"
-                    style={values.currency === "USD" ? {backgroundColor: "#f8c430"} : {}}
-                  >
-                    USD
-                  </button>
-                  <button
-                    onClick={() => {
-                      setValues({...values, currency: "EUR"});
-                      setSymbol("Є")
-                    }}
-                    className="payments__entry"
-                    style={values.currency === "EUR" ? {backgroundColor: "#f8c430"} : {}}
-                  >
-                    EUR
-                  </button>
-                  <button
-                    onClick={() => {
-                      setValues({...values, currency: "NGN"});
-                      setSymbol("₦")
-                    }}
-                    className="payments__entry"
-                    style={values.currency === "NGN" ? {backgroundColor: "#f8c430"} : {}}
-                  >
-                    NGN
-                  </button>
-                </div>
-              ) : null}
             </div>
           </div>
           <div className="register__section__forms__content__inputs__one">
