@@ -8,17 +8,50 @@ import InputBox from "../components/InputBox";
 import SelectBox from "../components/SelectBox";
 import CurrencyFormat from 'react-currency-format';
 import {Convert} from "easy-currencies";
+import getSymbolFromCurrency from "currency-symbol-map";
+import InputField from "../components/InputField";
+import {Modal, Alert} from "react-bootstrap";
+import {DotLoader} from "react-spinners";
+
+import {MdKeyboardArrowDown, MdKeyboardArrowUp} from "react-icons/md";
+
+import "flag-icons/css/flag-icons.min.css";
 
 import authHelper from "../helper/auth-helper";
 import {getUrl} from "../helper/url-helper";
+import countries from "../countries.json";
+import countriesCurrencies from "../countriesCurrencies.json";
 
-export default function BuyBitCoin({setNoHeaderFooter}) {
-  const [values, setValues] = useState({currency: "USD", paymentAmount: 0});
-  const [symbol, setSymbol] = useState('$');
+const override = {
+  display: "block",
+  margin: "0 auto",
+  borderColor: "red",
+}
+
+export default function SellBitCoin({setNoHeaderFooter}) {
+  const [modalShow, setModalShow] = React.useState(false);
+  const [nationals, setNationals] = useState(Object.keys(countriesCurrencies))
+  const [values, setValues] = useState({
+    bankName: "",
+    accountName: "",
+    accountNumber: "",
+    sortCode: "",
+    otherDetails: "",
+    currency: "USD", 
+    paymentAmount: 0,
+    bitcoinAmount: 0,
+    country: "us",
+    symbol: getSymbolFromCurrency("USD"),
+    name: "US Dollar"
+  });
   const [selectCurrency, setSelectCurrency] = useState(false);
-  const [price, setPrice] = useState(0);
-  const [tempPrice, setTempPrice] = useState(0);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    error: false,
+    errorMessage: ""
+  });
+
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,66 +64,106 @@ export default function BuyBitCoin({setNoHeaderFooter}) {
   useEffect(() => {
     if (!authHelper.isAuthenticated()){
       navigate("/login");
-   } else {
+    } else {
       async function getCoin(){
         let response = await fetch("https://api.coinlore.net/api/tickers/?start=0&limit=1", {
           method: "GET"
-       })
+        })
 
         let rs = await response.json();
-        setPrice(rs.data[0].price_usd)
 
-        let value = null;
-
-        value = await Convert(rs.data[0].price_usd).from("USD").to(values.currency);
-        setPrice(value)
-        if (values.paymentAmount === 0){
-          setTempPrice(value)
-       } else {
-          setTempPrice(value * values.paymentAmount)
-       }
-     }
+        let value = await Convert(rs.data[0].price_usd).from("USD").to(values.currency);
+        setValues({
+          ...values,
+          paymentAmount: value
+        })
+      }
 
       getCoin();
-   }
- }, [values.currency])
+    }
+  }, [])
 
   async function handleClick(e){
     e.preventDefault();
-    let response = await fetch(`${getUrl()}/transactions/buyBitcoin`, {
+    setLoading(true);
+
+    let response = await fetch(`${getUrl()}/transactions/buy-bitcoin`, {
       method: "POST",
       headers: {
         "Accept": "application/json",
         "Authorization": authHelper.isAuthenticated().token,
         "Content-Type": "application/json"
-     },
+      },
       body: JSON.stringify(values)
-   })
+    })
 
     let rs = await response.json()
+    console.log(rs);
+    setLoading(false);
     if (rs.success){
       navigate("/dashboard");
-   } else {
+    } else {
       setErrors(rs.errors.errors)
       //console.log(rs.errors.errors)
-   }
- }
+    }
+  }
+
+  function changeCurrency(e){
+    //setSymbol(getSymbolFromCurrency(e.target.value));
+    setValues({...values, currency: e.target.value});
+  }
+
+  async function handleChange(e){
+    setErrors({
+      error: false,
+      errorMessage: ""
+    })
+
+    if (e.target.value > 0){
+      async function getCoin(){
+        let response = await fetch("https://api.coinlore.net/api/tickers/?start=0&limit=1", {
+          method: "GET"
+        })
+
+        let rs = await response.json();
+
+        return await Convert(rs.data[0].price_usd).from("USD").to(values.currency);
+      }
+
+      let pr = await getCoin();
+      console.log(pr);
+
+      setValues({
+        ...values, 
+        paymentAmount: pr,
+        bitcoinAmount: e.target.value
+      })
+    } else {
+      setValues({
+        ...values, 
+        bitcoinAmount: 0
+      })
+    }
+  }
 
   return (
     <>
-      <div style={{marginTop: "4.6em"}} className="login__container__header">
+      <div style={{ marginTop: "4.6em" }} className="login__container__header">
+        {selectCurrency ? (
+          <div className="bg-div" onClick={() => setSelectCurrency(false)}></div>
+        ) : null}
         <div className="login__container__left">
           <div className="register__section__forms__content__heading">
             Buy Bitcoin
           </div>
           <div className="register__section__forms__content__para">
-            Escrow Block KYC Forms Below are links for Individuals or
-            Corporations who wish to setup an Escrow Block OTC which will enable
-            you easily purchase your bitcoin from us. Please select the form
-            that best describes your account type.
+            Escrow Block KYC Forms Below are links for Individuals or Corporations who wish to setup an Escrow Block OTC which will enable you easily purchase your bitcoin from us. Please select the form that best describes your account type.
           </div>
+          {errors.error && <Alert variant={"danger"} className="text-center">
+            {errors.errorMessage}
+          </Alert>}
           <div
-            style={{width: "100%", marginBottom: ".4em", marginLeft: ".7em"}}
+            style={{ width: "100%", marginBottom: ".4em", marginLeft: ".7em" }}
             className="buy__select__input__content"
           >
             Buy
@@ -98,10 +171,10 @@ export default function BuyBitCoin({setNoHeaderFooter}) {
           <div
             // onClick={() => {
             //   select ? setSelect(false) : setSelect(true);
-            //}}
+            // }}
             className="buy__select__input"
           >
-            <CurrencyFormat value={tempPrice} displayType={'text'} thousandSeparator={true} prefix={symbol} renderText={value => (
+            <CurrencyFormat value={values.paymentAmount} displayType={'text'} thousandSeparator={true} prefix={values.symbol} renderText={value => (
               <>
                 <img src={bitcoin} alt="bitcoin" className="buy__select__img" />
                 
@@ -110,62 +183,15 @@ export default function BuyBitCoin({setNoHeaderFooter}) {
                   required={true}
                   placeholder="Bitcoin"
                   className="buy__text__input"
-                  onChange={(e) => {
-                    setValues({...values, paymentAmount: e.target.value});
-                    if (e.target.value > 0){
-                      setTempPrice(price * e.target.value)
-                    }else if (e.target.value === ""){
-                      setTempPrice(price)
-                    }
-                  }}
+                  onChange={handleChange}
                   min={0}
                 />
               </>
             )} />
-            
-            {/* {select ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="feather feather-chevron-up"
-              >
-                <polyline points="18 15 12 9 6 15"></polyline>
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="feather feather-chevron-down"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            )}
-
-            {select ? (
-              <div className="buy__select__input__entry__wrapper">
-                <button className="buy__select__input__entry">Bitcoin</button>
-                <button className="buy__select__input__entry">Bitcoin</button>
-                <button className="buy__select__input__entry">Bitcoin</button>
-              </div>
-            ) : null} */}
           </div>
           <div className="bitcoin__value__card">
             <span>1 BTC = </span> 
-            <CurrencyFormat value={price} displayType={'text'} thousandSeparator={true} prefix={symbol} renderText={value => <span style={{color: "blue"}}>{value}</span>} />
+            <CurrencyFormat value={values.paymentAmount} displayType={'text'} thousandSeparator={true} prefix={values.symbol} renderText={value => <span style={{color: "blue"}}>{value}</span>} />
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="25.721"
@@ -203,134 +229,129 @@ export default function BuyBitCoin({setNoHeaderFooter}) {
           </div>
           <div className="register__section__forms__content__inputs__one">
             <div
-              style={{position: "relative"}}
+              style={{ position: "relative" }}
               className="start__up__container__form__input__box"
             >
               <div className="start__up__container__form__input__box__label">
-                Pay Via
+                Pay Via Bank Transfer / Cash
               </div>
               
               <div>
-              <input
-                className="styled-checkbox"
-                id="styled-checkbox"
-                type="checkbox"
-                name="female"
-                checked
-              />
-              <label
-                style={{color: "#1c0a15", fontSize: 16}}
-                htmlFor="styled-checkbox"
-              >
-                Wallet Address
-              </label>
-            </div>
+                <input
+                  className="styled-checkbox"
+                  id="styled-checkbox"
+                  type="checkbox"
+                  name="female"
+                  checked
+                />
+                <label
+                  style={{ color: "#1c0a15", fontSize: 16 }}
+                  htmlFor="styled-checkbox"
+                >
+                  Wallet Address
+                </label>
+              </div>
             </div>
           </div>
           <div className="register__section__forms__content__inputs__one">
             <div
-              style={{position: "relative"}}
+              style={{ position: "relative" }}
               className="start__up__container__form__input__box"
             >
               <div className="start__up__container__form__input__box__label">
-                I have (Amount to Change)
-              </div>
-              <div className="start__up__container__form__input__box__content">
-                <CurrencyFormat value={tempPrice} displayType={'text'} thousandSeparator={true} prefix={symbol} renderText={value => (
-                  <>
-                    <input
-                      type="text"
-                      placeholder="Bitcoin"
-                      className="start__up__container__form__input__box__field"
-                      value={value}
-                      onChange={(e) => {
-                        setValues({...values, paymentAmount: e.target.value});
-                        if (e.target.value > 0){
-                          setTempPrice(price * e.target.value)
-                       }else if (e.target.value === ""){
-                          setTempPrice(price)
-                       }
-                     }}
-                      readOnly
-                    />
-                  </>
-                )} />
-                <button
-                  onClick={() => {
-                    selectCurrency
-                      ? setSelectCurrency(false)
-                      : setSelectCurrency(true);
-                 }}
-                  className="input__btn"
+                <button onClick={() => {
+                  selectCurrency
+                    ? setSelectCurrency(false)
+                    : setSelectCurrency(true);
+                  }}
+                  className="currency-drop-btn"
                 >
-                  <span>$ </span>
-                  <span>Є </span>
-                  <span>₦</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="feather feather-align-justify"
-                  >
-                    <line x1="21" y1="10" x2="3" y2="10"></line>
-                    <line x1="21" y1="6" x2="3" y2="6"></line>
-                    <line x1="21" y1="14" x2="3" y2="14"></line>
-                    <line x1="21" y1="18" x2="3" y2="18"></line>
-                  </svg>
+                  <span className={`ci fi fi-${values.country}`}></span>
+                  <span className="cr-text">{values.currency}</span>
+                  <span className="lcr-text">{values.name}</span>
+                  <span className="cr-drop">
+                    {!selectCurrency ? <MdKeyboardArrowDown/> : <MdKeyboardArrowUp/>}
+                  </span>
                 </button>
               </div>
-              {selectCurrency ? (
-                <div className="payments__entry__wrapper">
-                  <button
-                    onClick={() => {
-                      setValues({...values, currency: "USD"});
-                      setSymbol("$")
-                   }}
-                    className="payments__entry"
-                    style={values.currency === "USD" ? {backgroundColor: "#f8c430"} : {}}
-                  >
-                    USD
-                  </button>
-                  <button
-                    onClick={() => {
-                      setValues({...values, currency: "EUR"});
-                      setSymbol("Є")
-                   }}
-                    className="payments__entry"
-                    style={values.currency === "EUR" ? {backgroundColor: "#f8c430"} : {}}
-                  >
-                    EUR
-                  </button>
-                  <button
-                    onClick={() => {
-                      setValues({...values, currency: "NGN"});
-                      setSymbol("₦")
-                   }}
-                    className="payments__entry"
-                    style={values.currency === "NGN" ? {backgroundColor: "#f8c430"} : {}}
-                  >
-                    NGN
-                  </button>
-                </div>
-              ) : null}
+              <div className="start__up__container__form__input__box__label" style={{position: "relative"}}>
+                {selectCurrency ? (
+                  <div className="payments-entry-wrapper">
+                    {nationals.map((national, i) => {
+                      if (countries[countriesCurrencies[national]]){
+                        return <button key={i} onClick={async () => {
+
+                          async function getCoin(){
+                            let response = await fetch("https://api.coinlore.net/api/tickers/?start=0&limit=1", {
+                              method: "GET"
+                            })
+                    
+                            let rs = await response.json();
+                    
+                            return await Convert(rs.data[0].price_usd).from(countriesCurrencies[national]).to(values.currency);
+                          }
+                    
+                          let pr = await getCoin();
+                          console.log(pr);
+                    
+                          setValues({
+                            ...values, 
+                            paymentAmount: pr,
+                            currency: countriesCurrencies[national],
+                            country: national.toLocaleLowerCase(),
+                            symbol: countries[countriesCurrencies[national]].symbol_native,
+                            name: countries[countriesCurrencies[national]].name
+                          })
+
+                          setSelectCurrency(false);
+                        }} className="currency-drop">
+                          <span className={`ci fi fi-${national.toLowerCase()}`}></span>
+                          <span className="cr-text">{countriesCurrencies[national]}</span>
+                          <span className="lcr-text">{countries[countriesCurrencies[national]].name}</span>
+                        </button>
+                      }
+                    })}
+                  </div>
+                ) : null}
+              </div>
+              <div className="start__up__container__form__input__box__label">
+                Total Amount
+              </div>
+              <div className="start__up__container__form__input__box__content">
+                <CurrencyFormat 
+                  value={values.paymentAmount * values.bitcoinAmount} 
+                  displayType={'text'} 
+                  thousandSeparator={true} 
+                  prefix={values.symbol} 
+                  renderText={value => (
+                    <>
+                      <input
+                        type="text"
+                        placeholder="Bitcoin"
+                        className="start__up__container__form__input__box__field"
+                        style={{borderColor: "lightgray", color: "lightgray"}}
+                        value={value}
+                        readOnly
+                      />
+                    </>
+                  )} 
+                />
+              </div>
             </div>
-          </div>
-          <div className="register__section__forms__content__inputs__one">
-            <InputBox placeholder="Wallet Address" type="text" name="walletAddress" errors={errors} onChange={(e) => {
-              setValues({...values, walletAddress: e.target.value});
-           }}/>
           </div>
           <button
             style={{marginTop: "2em", padding: "1em 4em"}}
-            className="button__secondary"
-            onClick={handleClick}>
-            Submit Offer Request
+            className="button__secondary" onClick={() => {
+              if (values.bitcoinAmount){
+                setModalShow(true)
+              } else {
+                setErrors({
+                  error: true,
+                  errorMessage: "Please select a Bitcoin Amount"
+                })
+              }
+            }}>
+            Proceed
           </button>
           <div style={{margin: "30px 0"}}>
             <span>
@@ -346,16 +367,219 @@ export default function BuyBitCoin({setNoHeaderFooter}) {
           />
         </div>
       </div>
+      <Form
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        handleClick={handleClick}
+        values={values}
+        setValues={setValues}
+        loading={loading}
+        setLoading={setLoading}
+      />
     </>
   );
 }
 
+function Form(props){
+  const [bankNameError, setBankNameError] = useState(false);
+  const [bankNameErrorMessage, setBankNameErrorMessage] = useState("");
+  const [accountNumberError, setAccountNumberError] = useState(false);
+  const [accountNumberErrorMessage, setAccountNumberErrorMessage] = useState("");
+  const [accountNameError, setAccountNameError] = useState(false);
+  const [accountNameErrorMessage, setAccountNameErrorMessage] = useState("");
+  const [otherDetailsError, setOtherDetailsError] = useState(false);
+  const [otherDetailsErrorMessage, setOtherDetailsErrorMessage] = useState("");
+
+  const [color, setColor] = useState("#f5ca4e");
+
+  function onChangeHandler(e){
+    let name = e.target.name;
+
+    clearErrors(name);
+
+    props.setValues({
+      ...props.values, [name]: e.target.value
+    });
+  }
+
+  function clearErrors(name){
+    switch(name){
+      case "bankName": 
+        setBankNameError(false);
+        setBankNameErrorMessage("");
+        break;
+
+      case "accountNumber": 
+        setAccountNumberError(false);
+        setAccountNumberErrorMessage("");
+        break;
+
+      case "accountName":
+        setAccountNameError(false);
+        setAccountNameErrorMessage("");
+        break;
+
+      case "otherDetails":
+        setOtherDetailsError(false);
+        setOtherDetailsErrorMessage("");
+        break;
+    }
+  }
+
+  function validate(values){
+    let valid = true;
+
+    if (!values.bankName){
+      valid = false;
+      setBankNameError(true);
+      setBankNameErrorMessage("Invalid Bank Name");
+    }
+
+    if (!values.accountName){
+      valid = false;
+      setAccountNameError(true);
+      setAccountNameErrorMessage("Invalid Account Name");
+    }
+
+    if (!values.accountNumber || !Number(values.accountNumber)){
+      valid = false;
+      setAccountNumberError(true);
+      setAccountNumberErrorMessage("Invalid account Number");
+    }
+
+    if (!values.otherDetails){
+      valid = false;
+      setOtherDetailsError(true);
+      setOtherDetailsErrorMessage("Others is required");
+    }
+
+    return valid;
+  }
+
+  function handleSubmit(e){
+    e.preventDefault();
+    let valid = validate(props.values);
+
+    if (valid){
+      props.handleClick(e);
+    }
+  }
+
+  return (
+    <Modal
+      {...props}
+      size="lg"
+      aria-labelledby="contained-modal-title-vcenter"
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Account Information
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <div className="bitcoin_up_main_content">
+          {props.loading && <div className="bitcoin-loader">
+            <DotLoader
+              color={color}
+              loading={props.loading}
+              cssOverride={override}
+              size={200}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
+          </div>}
+          <div>
+            Please enter name as displayed on official documents
+          </div>
+          <form style={{position: "relative"}} onSubmit={handleSubmit}>
+            <div className="input_container">
+              <InputField 
+                name="bankName" 
+                type="text" 
+                onChange={onChangeHandler} 
+                label="Bank Name" 
+                placeholder="Bank Name"
+                error={bankNameError}
+                errorMessage={bankNameErrorMessage}
+              />
+            </div>
+            <div className="input_container">
+              <InputField 
+                name="accountNumber" 
+                type="text" 
+                onChange={onChangeHandler} 
+                label="Account Number" 
+                placeholder="Account Number"
+                error={accountNumberError}
+                errorMessage={accountNumberErrorMessage}
+              />
+            </div>
+            <div className="input_container">
+              <InputField 
+                name="accountName" 
+                type="text" 
+                onChange={onChangeHandler} 
+                label="Account Name" 
+                placeholder="Account Name"
+                error={accountNameError}
+                errorMessage={accountNameErrorMessage}
+              />
+            </div>
+            <div className="input_container">
+              <InputField 
+                name="sortCode" 
+                type="text" 
+                onChange={onChangeHandler} 
+                label="Sort Code (If Applicable)" 
+                placeholder="Sort Code (If Applicable)"
+                error={false}
+                errorMessage={""}
+              />
+            </div>
+            <div className="input_container">
+              <InputField 
+                name="otherDetails" 
+                type="otherDetails" 
+                onChange={onChangeHandler} 
+                label="Other Details" 
+                placeholder="Other Details"
+                error={otherDetailsError}
+                errorMessage={otherDetailsErrorMessage}
+              />
+            </div>
+            <div className="input_container" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+              <button 
+                className="button gap" 
+                onClick={handleSubmit}
+              >Submit</button>
+            </div>
+          </form>
+        </div>
+      </Modal.Body>
+    </Modal>
+  )
+}
+
+
 {
-  /* <div className="register__section__forms">
+  /* 
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  <div className="register__section__forms">
 <div className="register__section__forms__content">
   <div className="register__section__forms__content__heading">
     Sell Bitcoin
   </div>
+
   <div className="register__section__forms__content__para">
     Escrow Block KYC Forms Below are links for Individuals or
     Corporations who wish to setup an Escrow Block OTC which will enable

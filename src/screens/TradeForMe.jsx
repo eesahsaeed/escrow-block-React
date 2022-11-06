@@ -16,12 +16,6 @@ export default function TradeForMe() {
           >
             Trade For Me
           </div>
-          <Link
-            to="/login"
-            className="button__secondary"
-          >
-            Login
-          </Link>
         </div>
       </div>
       <div className="register__section__forms">

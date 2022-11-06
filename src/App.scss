@@ -629,6 +629,21 @@ input{
   border-radius: 10px;
 }
 
+.bitcoin-loader{
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  height: 100%;
+  padding-top: 20%;
+  border-radius: 13px;
+  z-index: 90;
+  background-color: #ffbc0014;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+}
+
 .loading-container{
   position: absolute;
   width: 100%;
@@ -2171,6 +2186,10 @@ body{
 
   .welcome-col{
     margin-top: 300px;
+  }
+
+  .bitcoin-loader{
+    padding-top: 70%;
   }
 
   .wc-2{

@@ -9,6 +9,8 @@ import CurrencyFormat from 'react-currency-format';
 import {Convert} from "easy-currencies";
 import getSymbolFromCurrency from "currency-symbol-map";
 import InputField from "../components/InputField";
+import {Modal, Alert} from "react-bootstrap";
+import {DotLoader} from "react-spinners";
 
 import {MdKeyboardArrowDown, MdKeyboardArrowUp} from "react-icons/md";
 
@@ -19,12 +21,21 @@ import {getUrl} from "../helper/url-helper";
 import countries from "../countries.json";
 import countriesCurrencies from "../countriesCurrencies.json";
 
-console.log(countries);
+const override = {
+  display: "block",
+  margin: "0 auto",
+  borderColor: "red",
+}
 
 export default function SellBitCoin({setNoHeaderFooter}) {
-  const [currencies, setCurrencies] = useState(Object.keys(countries));
+  const [modalShow, setModalShow] = React.useState(false);
   const [nationals, setNationals] = useState(Object.keys(countriesCurrencies))
   const [values, setValues] = useState({
+    bankName: "",
+    accountName: "",
+    accountNumber: "",
+    sortCode: "",
+    otherDetails: "",
     currency: "USD", 
     paymentAmount: 0,
     bitcoinAmount: 0,
@@ -33,9 +44,13 @@ export default function SellBitCoin({setNoHeaderFooter}) {
     name: "US Dollar"
   });
   const [selectCurrency, setSelectCurrency] = useState(false);
-  const [price, setPrice] = useState(0);
-  const [tempPrice, setTempPrice] = useState(0);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    error: false,
+    errorMessage: ""
+  });
+
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,7 +84,9 @@ export default function SellBitCoin({setNoHeaderFooter}) {
 
   async function handleClick(e){
     e.preventDefault();
-    let response = await fetch(`${getUrl()}/transactions/sellBitcoin`, {
+    setLoading(true);
+
+    let response = await fetch(`${getUrl()}/transactions/sell-bitcoin`, {
       method: "POST",
       headers: {
         "Accept": "application/json",
@@ -80,6 +97,8 @@ export default function SellBitCoin({setNoHeaderFooter}) {
     })
 
     let rs = await response.json()
+    console.log(rs);
+    setLoading(false);
     if (rs.success){
       navigate("/dashboard");
     } else {
@@ -94,6 +113,11 @@ export default function SellBitCoin({setNoHeaderFooter}) {
   }
 
   async function handleChange(e){
+    setErrors({
+      error: false,
+      errorMessage: ""
+    })
+
     if (e.target.value > 0){
       async function getCoin(){
         let response = await fetch("https://api.coinlore.net/api/tickers/?start=0&limit=1", {
@@ -137,6 +161,9 @@ export default function SellBitCoin({setNoHeaderFooter}) {
             you easily purchase your bitcoin from us. Please select the form
             that best describes your account type.
           </div>
+          {errors.error && <Alert variant={"danger"} className="text-center">
+            {errors.errorMessage}
+          </Alert>}
           <div
             style={{ width: "100%", marginBottom: ".4em", marginLeft: ".7em" }}
             className="buy__select__input__content"
@@ -163,46 +190,6 @@ export default function SellBitCoin({setNoHeaderFooter}) {
                 />
               </>
             )} />
-            
-            {/* {select ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="feather feather-chevron-up"
-              >
-                <polyline points="18 15 12 9 6 15"></polyline>
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="feather feather-chevron-down"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            )}
-
-            {select ? (
-              <div className="buy__select__input__entry__wrapper">
-                <button className="buy__select__input__entry">Bitcoin</button>
-                <button className="buy__select__input__entry">Bitcoin</button>
-                <button className="buy__select__input__entry">Bitcoin</button>
-              </div>
-            ) : null} */}
           </div>
           <div className="bitcoin__value__card">
             <span>1 BTC = </span> 
@@ -326,12 +313,6 @@ export default function SellBitCoin({setNoHeaderFooter}) {
                         </button>
                       }
                     })}
-                    {/**<div onClick={() => {
-                      setValues({...values, currency: "USD"});
-                      setSymbol("$")
-                    }} className="currency">
-                      <span className="fi fi-gr fis ci ci-drop"></span>
-                    </div> */}
                   </div>
                 ) : null}
               </div>
@@ -362,13 +343,20 @@ export default function SellBitCoin({setNoHeaderFooter}) {
           </div>
           <button
             style={{marginTop: "2em", padding: "1em 4em"}}
-            className="button__secondary"
-            onClick={handleClick}>
-            Submit Offer Request
+            className="button__secondary" onClick={() => {
+              if (values.bitcoinAmount){
+                setModalShow(true)
+              } else {
+                setErrors({
+                  error: true,
+                  errorMessage: "Please select a Bitcoin Amount"
+                })
+              }
+            }}>
+            Proceed
           </button>
         </div>
         <div className="login__container__right">
-          
           <img
             src={sellBictvoinSvg}
             alt="sellBitcoinSvg"
@@ -376,11 +364,20 @@ export default function SellBitCoin({setNoHeaderFooter}) {
           />
         </div>
       </div>
+      <Form
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        handleClick={handleClick}
+        values={values}
+        setValues={setValues}
+        loading={loading}
+        setLoading={setLoading}
+      />
     </>
   );
 }
 
-function Form(){
+function Form(props){
   const [bankNameError, setBankNameError] = useState(false);
   const [bankNameErrorMessage, setBankNameErrorMessage] = useState("");
   const [accountNumberError, setAccountNumberError] = useState(false);
@@ -390,78 +387,173 @@ function Form(){
   const [otherDetailsError, setOtherDetailsError] = useState(false);
   const [otherDetailsErrorMessage, setOtherDetailsErrorMessage] = useState("");
 
-  function onChangeHandler(){
+  const [color, setColor] = useState("#f5ca4e");
 
+  function onChangeHandler(e){
+    let name = e.target.name;
+
+    clearErrors(name);
+
+    props.setValues({
+      ...props.values, [name]: e.target.value
+    });
+  }
+
+  function clearErrors(name){
+    switch(name){
+      case "bankName": 
+        setBankNameError(false);
+        setBankNameErrorMessage("");
+        break;
+
+      case "accountNumber": 
+        setAccountNumberError(false);
+        setAccountNumberErrorMessage("");
+        break;
+
+      case "accountName":
+        setAccountNameError(false);
+        setAccountNameErrorMessage("");
+        break;
+
+      case "otherDetails":
+        setOtherDetailsError(false);
+        setOtherDetailsErrorMessage("");
+        break;
+    }
+  }
+
+  function validate(values){
+    let valid = true;
+
+    if (!values.bankName){
+      valid = false;
+      setBankNameError(true);
+      setBankNameErrorMessage("Invalid Bank Name");
+    }
+
+    if (!values.accountName){
+      valid = false;
+      setAccountNameError(true);
+      setAccountNameErrorMessage("Invalid Account Name");
+    }
+
+    if (!values.accountNumber || !Number(values.accountNumber)){
+      valid = false;
+      setAccountNumberError(true);
+      setAccountNumberErrorMessage("Invalid account Number");
+    }
+
+    if (!values.otherDetails){
+      valid = false;
+      setOtherDetailsError(true);
+      setOtherDetailsErrorMessage("Others is required");
+    }
+
+    return valid;
+  }
+
+  function handleSubmit(e){
+    e.preventDefault();
+    let valid = validate(props.values);
+
+    if (valid){
+      props.handleClick(e);
+    }
   }
 
   return (
-    <div className="bitcoin_up_main_content">
-      <div style={{marginBottom: 10}}>
-        Please enter name as displayed on official documents
-      </div>
-      <form style={{position: "relative"}}>
-        <div className="input_container">
-          <InputField 
-            name="bankName" 
-            type="text" 
-            onChange={onChangeHandler} 
-            label="Bank Name" 
-            placeholder="Bank Name"
-            error={bankNameError}
-            errorMessage={bankNameErrorMessage}
-          />
+    <Modal
+      {...props}
+      size="lg"
+      aria-labelledby="contained-modal-title-vcenter"
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Account Information
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <div className="bitcoin_up_main_content">
+          {props.loading && <div className="bitcoin-loader">
+            <DotLoader
+              color={color}
+              loading={props.loading}
+              cssOverride={override}
+              size={200}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
+          </div>}
+          <div>
+            Please enter name as displayed on official documents
+          </div>
+          <form style={{position: "relative"}} onSubmit={handleSubmit}>
+            <div className="input_container">
+              <InputField 
+                name="bankName" 
+                type="text" 
+                onChange={onChangeHandler} 
+                label="Bank Name" 
+                placeholder="Bank Name"
+                error={bankNameError}
+                errorMessage={bankNameErrorMessage}
+              />
+            </div>
+            <div className="input_container">
+              <InputField 
+                name="accountNumber" 
+                type="text" 
+                onChange={onChangeHandler} 
+                label="Account Number" 
+                placeholder="Account Number"
+                error={accountNumberError}
+                errorMessage={accountNumberErrorMessage}
+              />
+            </div>
+            <div className="input_container">
+              <InputField 
+                name="accountName" 
+                type="text" 
+                onChange={onChangeHandler} 
+                label="Account Name" 
+                placeholder="Account Name"
+                error={accountNameError}
+                errorMessage={accountNameErrorMessage}
+              />
+            </div>
+            <div className="input_container">
+              <InputField 
+                name="sortCode" 
+                type="text" 
+                onChange={onChangeHandler} 
+                label="Sort Code (If Applicable)" 
+                placeholder="Sort Code (If Applicable)"
+                error={false}
+                errorMessage={""}
+              />
+            </div>
+            <div className="input_container">
+              <InputField 
+                name="otherDetails" 
+                type="otherDetails" 
+                onChange={onChangeHandler} 
+                label="Other Details" 
+                placeholder="Other Details"
+                error={otherDetailsError}
+                errorMessage={otherDetailsErrorMessage}
+              />
+            </div>
+            <div className="input_container" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+              <button 
+                className="button gap" 
+                onClick={handleSubmit}
+              >Submit</button>
+            </div>
+          </form>
         </div>
-        <div className="input_container">
-          <InputField 
-            name="accountNumber" 
-            type="text" 
-            onChange={onChangeHandler} 
-            label="Account Number" 
-            placeholder="Account Number"
-            error={accountNumberError}
-            errorMessage={accountNumberErrorMessage}
-          />
-        </div>
-        <div className="input_container">
-          <InputField 
-            name="accountName" 
-            type="text" 
-            onChange={onChangeHandler} 
-            label="Account Name" 
-            placeholder="Account Name"
-            error={accountNameError}
-            errorMessage={accountNameErrorMessage}
-          />
-        </div>
-        <div className="input_container">
-          <InputField 
-            name="sortCode" 
-            type="text" 
-            onChange={onChangeHandler} 
-            label="Sort Code (If Applicable)" 
-            placeholder="Sort Code (If Applicable)"
-            error={false}
-            errorMessage={""}
-          />
-        </div>
-        <div className="input_container">
-          <InputField 
-            name="otherDetails" 
-            type="otherDetails" 
-            onChange={onChangeHandler} 
-            label="Other Details" 
-            placeholder="Other Details"
-            error={otherDetailsError}
-            errorMessage={otherDetailsErrorMessage}
-          />
-        </div>
-        <div className="input_container" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
-          <button 
-            className="button gap" 
-            onClick={() => {}}
-          >Submit</button>
-        </div>
-      </form>
-    </div>
+      </Modal.Body>
+    </Modal>
   )
 }

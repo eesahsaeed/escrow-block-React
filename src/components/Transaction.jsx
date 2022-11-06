@@ -1,5 +1,6 @@
 
 import React, {useState} from "react";
+import CurrencyFormat from 'react-currency-format';
 
 function Transaction({transact, user}){
   const [selectTransaction, setSelectTransaction] = useState(false)
@@ -43,10 +44,10 @@ function Transaction({transact, user}){
           {transaction._id}
         </div>
         <div className="register__section__forms__content__history__details__entry">
-          {transaction.walletAddress}
+          {transaction.bitcoinAmount}
         </div>
         <div className="register__section__forms__content__history__details__entry">
-          {transaction.paymentAmount}
+          <CurrencyFormat value={transaction.paymentAmount * transaction.bitcoinAmount} displayType={'text'} thousandSeparator={true} prefix={transaction.symbol} renderText={value => <span>{value}</span>} />
         </div>
         <div className="register__section__forms__content__history__details__entry">
           {transaction.transactionType}

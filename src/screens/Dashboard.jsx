@@ -259,7 +259,7 @@ function TransactionEntry() {
             Transaction ID
           </div>
           <div className="register__section__forms__content__history__heading__entry">
-            Payment In
+            Bitcoins
           </div>
           <div className="register__section__forms__content__history__heading__entry">
             Amount
