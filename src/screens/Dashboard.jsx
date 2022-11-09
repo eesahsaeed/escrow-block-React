@@ -236,6 +236,7 @@ function TransactionEntry() {
 
             let rs = await response.json();
             setTransactions(rs)
+            console.log(rs);
           } catch(err){
             console.log(err);
           }

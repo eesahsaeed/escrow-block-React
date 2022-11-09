@@ -22,7 +22,7 @@ function Transaction({transact, user}){
 
         let rs = await response.json();
 
-        setTransaction({...transaction, status: rs.status})
+        setTransaction({...transaction, status: rs.status});
         setSelectTransaction(false);
       } catch(err){
         console.log(err);

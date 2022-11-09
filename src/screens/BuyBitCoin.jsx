@@ -32,25 +32,31 @@ export default function SellBitCoin({setNoHeaderFooter}) {
   const [modalShow, setModalShow] = React.useState(false);
   const [nationals, setNationals] = useState(Object.keys(countriesCurrencies))
   const [values, setValues] = useState({
-    bankName: "",
-    accountName: "",
-    accountNumber: "",
-    sortCode: "",
-    otherDetails: "",
     currency: "USD", 
     paymentAmount: 0,
     bitcoinAmount: 0,
     country: "us",
     symbol: getSymbolFromCurrency("USD"),
-    name: "US Dollar"
+    name: "US Dollar",
+    walletAddress: ""
   });
   const [selectCurrency, setSelectCurrency] = useState(false);
   const [errors, setErrors] = useState({
     error: false,
     errorMessage: ""
   });
+  const [bitcoinAmountError, setBitcoinAmountError] = useState({
+    error: false,
+    errorMessage: ""
+  });
+  const [walletAddressError, setWalletAddressError] = useState({
+    error: false,
+    errorMessage: ""
+  });
 
   const [loading, setLoading] = useState(false);
+
+  const [color, setColor] = useState("#f5ca4e");
 
   const navigate = useNavigate();
 
@@ -83,41 +89,84 @@ export default function SellBitCoin({setNoHeaderFooter}) {
     }
   }, [])
 
+  function validate(){
+    let valid = true;
+
+    if (!values.bitcoinAmount){
+      valid = false;
+      setBitcoinAmountError({
+        error: true,
+        errorMessage: "Please select a bitcoin amount"
+      });
+    }
+
+    if (!values.walletAddress){
+      valid = false;
+      setWalletAddressError({
+        error: true,
+        errorMessage: "Wallet address is required"
+      });
+    }
+
+    return valid;
+  }
+
   async function handleClick(e){
     e.preventDefault();
-    setLoading(true);
 
-    let response = await fetch(`${getUrl()}/transactions/buy-bitcoin`, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Authorization": authHelper.isAuthenticated().token,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(values)
-    })
+    let valid = validate();
 
-    let rs = await response.json()
-    console.log(rs);
-    setLoading(false);
-    if (rs.success){
-      navigate("/dashboard");
+    if (valid){
+      setLoading(true);
+
+      let response = await fetch(`${getUrl()}/transactions/buy-bitcoin`, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Authorization": authHelper.isAuthenticated().token,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(values)
+      })
+
+      let rs = await response.json()
+      console.log(rs);
+      setLoading(false);
+      if (rs.success){
+        navigate("/dashboard");
+      } else {
+        setErrors(rs.errors.errors)
+        //console.log(rs.errors.errors)
+      }
     } else {
-      setErrors(rs.errors.errors)
-      //console.log(rs.errors.errors)
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
     }
   }
 
-  function changeCurrency(e){
-    //setSymbol(getSymbolFromCurrency(e.target.value));
-    setValues({...values, currency: e.target.value});
+  function clearErrors(name){
+    if (name === "bitcoinAmount"){
+      setBitcoinAmountError({
+        error: false,
+        errorMessage: ""
+      })
+    }
+
+    if (name === "walletAddress"){
+      setWalletAddressError({
+        error: false,
+        errorMessage: ""
+      })
+    }
   }
 
   async function handleChange(e){
-    setErrors({
-      error: false,
-      errorMessage: ""
-    })
+    e.preventDefault();
+    let name = e.target.name;
+
+    clearErrors(name);
 
     if (e.target.value > 0){
       async function getCoin(){
@@ -156,12 +205,6 @@ export default function SellBitCoin({setNoHeaderFooter}) {
           <div className="register__section__forms__content__heading">
             Buy Bitcoin
           </div>
-          <div className="register__section__forms__content__para">
-            Escrow Block KYC Forms Below are links for Individuals or Corporations who wish to setup an Escrow Block OTC which will enable you easily purchase your bitcoin from us. Please select the form that best describes your account type.
-          </div>
-          {errors.error && <Alert variant={"danger"} className="text-center">
-            {errors.errorMessage}
-          </Alert>}
           <div
             style={{ width: "100%", marginBottom: ".4em", marginLeft: ".7em" }}
             className="buy__select__input__content"
@@ -169,9 +212,7 @@ export default function SellBitCoin({setNoHeaderFooter}) {
             Buy
           </div>
           <div
-            // onClick={() => {
-            //   select ? setSelect(false) : setSelect(true);
-            // }}
+            style={{border: bitcoinAmountError.error ? "1px solid red" : ""}}
             className="buy__select__input"
           >
             <CurrencyFormat value={values.paymentAmount} displayType={'text'} thousandSeparator={true} prefix={values.symbol} renderText={value => (
@@ -180,6 +221,7 @@ export default function SellBitCoin({setNoHeaderFooter}) {
                 
                 <input
                   type="number"
+                  name="bitcoinAmount"
                   required={true}
                   placeholder="Bitcoin"
                   className="buy__text__input"
@@ -189,6 +231,9 @@ export default function SellBitCoin({setNoHeaderFooter}) {
               </>
             )} />
           </div>
+          {bitcoinAmountError.error && <Alert variant={"danger"} className="text-center mt-1">
+            {bitcoinAmountError.errorMessage}
+          </Alert>}
           <div className="bitcoin__value__card">
             <span>1 BTC = </span> 
             <CurrencyFormat value={values.paymentAmount} displayType={'text'} thousandSeparator={true} prefix={values.symbol} renderText={value => <span style={{color: "blue"}}>{value}</span>} />
@@ -241,7 +286,7 @@ export default function SellBitCoin({setNoHeaderFooter}) {
                   className="styled-checkbox"
                   id="styled-checkbox"
                   type="checkbox"
-                  name="female"
+                  name="walletAddress"
                   checked
                 />
                 <label
@@ -339,19 +384,18 @@ export default function SellBitCoin({setNoHeaderFooter}) {
               </div>
             </div>
           </div>
+          <div className="register__section__forms__content__inputs__one">
+            <InputBox placeholder="Wallet Address" type="text" name="walletAddress" errors={errors} onChange={(e) => {
+              setValues({...values, walletAddress: e.target.value});
+            }}/>
+            {walletAddressError.error && <Alert variant={"danger"} className="text-center">
+            {walletAddressError.errorMessage}
+          </Alert>}
+          </div>          
           <button
             style={{marginTop: "2em", padding: "1em 4em"}}
-            className="button__secondary" onClick={() => {
-              if (values.bitcoinAmount){
-                setModalShow(true)
-              } else {
-                setErrors({
-                  error: true,
-                  errorMessage: "Please select a Bitcoin Amount"
-                })
-              }
-            }}>
-            Proceed
+            className="button__secondary" onClick={handleClick}>
+            Submit Offer Request
           </button>
           <div style={{margin: "30px 0"}}>
             <span>
@@ -367,252 +411,16 @@ export default function SellBitCoin({setNoHeaderFooter}) {
           />
         </div>
       </div>
-      <Form
-        show={modalShow}
-        onHide={() => setModalShow(false)}
-        handleClick={handleClick}
-        values={values}
-        setValues={setValues}
-        loading={loading}
-        setLoading={setLoading}
-      />
+      {loading && <div className="bitcoin-loader">
+        <DotLoader
+          color={color}
+          loading={loading}
+          cssOverride={override}
+          size={200}
+          aria-label="Loading Spinner"
+          data-testid="loader"
+        />
+      </div>}
     </>
   );
-}
-
-function Form(props){
-  const [bankNameError, setBankNameError] = useState(false);
-  const [bankNameErrorMessage, setBankNameErrorMessage] = useState("");
-  const [accountNumberError, setAccountNumberError] = useState(false);
-  const [accountNumberErrorMessage, setAccountNumberErrorMessage] = useState("");
-  const [accountNameError, setAccountNameError] = useState(false);
-  const [accountNameErrorMessage, setAccountNameErrorMessage] = useState("");
-  const [otherDetailsError, setOtherDetailsError] = useState(false);
-  const [otherDetailsErrorMessage, setOtherDetailsErrorMessage] = useState("");
-
-  const [color, setColor] = useState("#f5ca4e");
-
-  function onChangeHandler(e){
-    let name = e.target.name;
-
-    clearErrors(name);
-
-    props.setValues({
-      ...props.values, [name]: e.target.value
-    });
-  }
-
-  function clearErrors(name){
-    switch(name){
-      case "bankName": 
-        setBankNameError(false);
-        setBankNameErrorMessage("");
-        break;
-
-      case "accountNumber": 
-        setAccountNumberError(false);
-        setAccountNumberErrorMessage("");
-        break;
-
-      case "accountName":
-        setAccountNameError(false);
-        setAccountNameErrorMessage("");
-        break;
-
-      case "otherDetails":
-        setOtherDetailsError(false);
-        setOtherDetailsErrorMessage("");
-        break;
-    }
-  }
-
-  function validate(values){
-    let valid = true;
-
-    if (!values.bankName){
-      valid = false;
-      setBankNameError(true);
-      setBankNameErrorMessage("Invalid Bank Name");
-    }
-
-    if (!values.accountName){
-      valid = false;
-      setAccountNameError(true);
-      setAccountNameErrorMessage("Invalid Account Name");
-    }
-
-    if (!values.accountNumber || !Number(values.accountNumber)){
-      valid = false;
-      setAccountNumberError(true);
-      setAccountNumberErrorMessage("Invalid account Number");
-    }
-
-    if (!values.otherDetails){
-      valid = false;
-      setOtherDetailsError(true);
-      setOtherDetailsErrorMessage("Others is required");
-    }
-
-    return valid;
-  }
-
-  function handleSubmit(e){
-    e.preventDefault();
-    let valid = validate(props.values);
-
-    if (valid){
-      props.handleClick(e);
-    }
-  }
-
-  return (
-    <Modal
-      {...props}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered
-    >
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          Account Information
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <div className="bitcoin_up_main_content">
-          {props.loading && <div className="bitcoin-loader">
-            <DotLoader
-              color={color}
-              loading={props.loading}
-              cssOverride={override}
-              size={200}
-              aria-label="Loading Spinner"
-              data-testid="loader"
-            />
-          </div>}
-          <div>
-            Please enter name as displayed on official documents
-          </div>
-          <form style={{position: "relative"}} onSubmit={handleSubmit}>
-            <div className="input_container">
-              <InputField 
-                name="bankName" 
-                type="text" 
-                onChange={onChangeHandler} 
-                label="Bank Name" 
-                placeholder="Bank Name"
-                error={bankNameError}
-                errorMessage={bankNameErrorMessage}
-              />
-            </div>
-            <div className="input_container">
-              <InputField 
-                name="accountNumber" 
-                type="text" 
-                onChange={onChangeHandler} 
-                label="Account Number" 
-                placeholder="Account Number"
-                error={accountNumberError}
-                errorMessage={accountNumberErrorMessage}
-              />
-            </div>
-            <div className="input_container">
-              <InputField 
-                name="accountName" 
-                type="text" 
-                onChange={onChangeHandler} 
-                label="Account Name" 
-                placeholder="Account Name"
-                error={accountNameError}
-                errorMessage={accountNameErrorMessage}
-              />
-            </div>
-            <div className="input_container">
-              <InputField 
-                name="sortCode" 
-                type="text" 
-                onChange={onChangeHandler} 
-                label="Sort Code (If Applicable)" 
-                placeholder="Sort Code (If Applicable)"
-                error={false}
-                errorMessage={""}
-              />
-            </div>
-            <div className="input_container">
-              <InputField 
-                name="otherDetails" 
-                type="otherDetails" 
-                onChange={onChangeHandler} 
-                label="Other Details" 
-                placeholder="Other Details"
-                error={otherDetailsError}
-                errorMessage={otherDetailsErrorMessage}
-              />
-            </div>
-            <div className="input_container" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
-              <button 
-                className="button gap" 
-                onClick={handleSubmit}
-              >Submit</button>
-            </div>
-          </form>
-        </div>
-      </Modal.Body>
-    </Modal>
-  )
-}
-
-
-{
-  /* 
-  
-  
-  
-
-  
-  
-  
-  
-  
-  
-  <div className="register__section__forms">
-<div className="register__section__forms__content">
-  <div className="register__section__forms__content__heading">
-    Sell Bitcoin
-  </div>
-
-  <div className="register__section__forms__content__para">
-    Escrow Block KYC Forms Below are links for Individuals or
-    Corporations who wish to setup an Escrow Block OTC which will enable
-    you easily purchase your bitcoin from us. Please select the form
-    that best describes your account type.
-  </div>
-  <div className="register__section__forms__content__btns">
-    <Link
-      style={{marginRight: "1em"}}
-      to="/individual-register"
-      className="button__secondary"
-      onClick={() => {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-       });
-     }}
-    >
-      Individual
-    </Link>
-    <Link
-      to="/individual-register"
-      className="button__secondary"
-      onClick={() => {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-       });
-     }}
-    >
-      Corporate
-    </Link>
-  </div>
-</div>
-</div> */
 }
