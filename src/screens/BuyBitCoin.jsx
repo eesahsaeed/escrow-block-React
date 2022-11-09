@@ -215,21 +215,17 @@ export default function SellBitCoin({setNoHeaderFooter}) {
             style={{border: bitcoinAmountError.error ? "1px solid red" : ""}}
             className="buy__select__input"
           >
-            <CurrencyFormat value={values.paymentAmount} displayType={'text'} thousandSeparator={true} prefix={values.symbol} renderText={value => (
-              <>
-                <img src={bitcoin} alt="bitcoin" className="buy__select__img" />
-                
-                <input
-                  type="number"
-                  name="bitcoinAmount"
-                  required={true}
-                  placeholder="Bitcoin"
-                  className="buy__text__input"
-                  onChange={handleChange}
-                  min={0}
-                />
-              </>
-            )} />
+            <img src={bitcoin} alt="bitcoin" className="buy__select__img" />
+            
+            <input
+              type="number"
+              name="bitcoinAmount"
+              required={true}
+              placeholder="Bitcoin"
+              className="buy__text__input"
+              onChange={handleChange}
+              min={0}
+            />
           </div>
           {bitcoinAmountError.error && <Alert variant={"danger"} className="text-center mt-1">
             {bitcoinAmountError.errorMessage}
@@ -391,7 +387,7 @@ export default function SellBitCoin({setNoHeaderFooter}) {
             {walletAddressError.error && <Alert variant={"danger"} className="text-center">
             {walletAddressError.errorMessage}
           </Alert>}
-          </div>          
+          </div>
           <button
             style={{marginTop: "2em", padding: "1em 4em"}}
             className="button__secondary" onClick={handleClick}>

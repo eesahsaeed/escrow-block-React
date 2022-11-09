@@ -155,42 +155,27 @@ export default function SellBitCoin({setNoHeaderFooter}) {
           <div className="register__section__forms__content__heading">
             Sell Bitcoin
           </div>
-          <div className="register__section__forms__content__para">
-            Escrow Block KYC Forms Below are links for Individuals or
-            Corporations who wish to setup an Escrow Block OTC which will enable
-            you easily purchase your bitcoin from us. Please select the form
-            that best describes your account type.
-          </div>
-          {errors.error && <Alert variant={"danger"} className="text-center">
-            {errors.errorMessage}
-          </Alert>}
           <div
             style={{ width: "100%", marginBottom: ".4em", marginLeft: ".7em" }}
             className="buy__select__input__content"
           >
             Sell
           </div>
-          <div
-            // onClick={() => {
-            //   select ? setSelect(false) : setSelect(true);
-            // }}
-            className="buy__select__input"
-          >
-            <CurrencyFormat value={values.paymentAmount} displayType={'text'} thousandSeparator={true} prefix={values.symbol} renderText={value => (
-              <>
-                <img src={bitcoin} alt="bitcoin" className="buy__select__img" />
-                
-                <input
-                  type="number"
-                  required={true}
-                  placeholder="Bitcoin"
-                  className="buy__text__input"
-                  onChange={handleChange}
-                  min={0}
-                />
-              </>
-            )} />
+          <div className="buy__select__input" style={{border: errors.error ? "1px solid red" : ""}}>
+              <img src={bitcoin} alt="bitcoin" className="buy__select__img" />
+              
+              <input
+                type="number"
+                required={true}
+                placeholder="Bitcoin"
+                className="buy__text__input"
+                onChange={handleChange}
+                min={0}
+              />
           </div>
+          {errors.error && <Alert variant={"danger"} className="text-center mt-1">
+            {errors.errorMessage}
+          </Alert>}
           <div className="bitcoin__value__card">
             <span>1 BTC = </span> 
             <CurrencyFormat value={values.paymentAmount} displayType={'text'} thousandSeparator={true} prefix={values.symbol} renderText={value => <span style={{color: "blue"}}>{value}</span>} />
@@ -231,33 +216,17 @@ export default function SellBitCoin({setNoHeaderFooter}) {
           </div>
           <div className="register__section__forms__content__inputs__one">
             <div
-              style={{ position: "relative" }}
+              style={{position: "relative"}}
               className="start__up__container__form__input__box"
             >
               <div className="start__up__container__form__input__box__label">
                 Get Paid Via Bank Transfer / Cash
               </div>
-              
-              <div>
-                <input
-                  className="styled-checkbox"
-                  id="styled-checkbox"
-                  type="checkbox"
-                  name="female"
-                  checked
-                />
-                <label
-                  style={{ color: "#1c0a15", fontSize: 16 }}
-                  htmlFor="styled-checkbox"
-                >
-                  Wallet Address
-                </label>
-              </div>
             </div>
           </div>
           <div className="register__section__forms__content__inputs__one">
             <div
-              style={{ position: "relative" }}
+              style={{position: "relative"}}
               className="start__up__container__form__input__box"
             >
               <div className="start__up__container__form__input__box__label">
