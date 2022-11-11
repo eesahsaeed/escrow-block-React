@@ -1361,7 +1361,6 @@ function Form2({
           errorMessage={preferredCommuninicationErrorMessage}
         >
           <option value="Telegram">Telegram</option>
-          <option value="WhatsApp">WhatsApp</option>
         </InputField>
       </div>
       <div className="input_container">
