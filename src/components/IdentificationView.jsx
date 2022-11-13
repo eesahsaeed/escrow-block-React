@@ -14,9 +14,9 @@ export default function PdfView({user, type}){
   const [modalShow, setModalShow] = useState(false);
   const navigate = useNavigate();
 
-  let link = `${getUrl()}/users/get-identification/${user._id}`;
+  let link = `${getUrl()}/users/get-file/identification/${user._id}`;
 
-  function onDocumentLoadSuccess({numPages}) {
+  function onDocumentLoadSuccess({numPages}){
     setNumPages(numPages);
   }
 

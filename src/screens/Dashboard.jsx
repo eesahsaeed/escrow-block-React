@@ -337,7 +337,7 @@ function UserEntry() {
         </div>
       </div>
       {users.map((user, i) => (
-        <div>
+        <div key={i}>
           <div  className="register__section__forms__content__history__details__row" key={i} onClick={() => {
             if (drop === i){
               setDrop(-1)

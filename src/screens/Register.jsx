@@ -289,6 +289,7 @@ export default function RegisterIndividual() {
     identification: null,
     proofOfAddress: null,
     bankStatement: null,
+    dummy: null,
     password: "",
     confirmPassword: ""
   });
@@ -1285,10 +1286,13 @@ function Form2({
       values.sourceOfFunds && userData.append("sourceOfFunds", values.sourceOfFunds);
       values.expectedTransactionSizePerTrade && userData.append("expectedTransactionSizePerTrade", values.expectedTransactionSizePerTrade);
       values.address && userData.append("address", values.address);
-      values.bankStatement && userData.append("bankStatement", values.bankStatement);
+      
       values.identification && userData.append("identification", values.identification);
+      
       values.proofOfAddress && userData.append("proofOfAddress", values.proofOfAddress);
+      
       values.bankStatement && userData.append("bankStatement", values.bankStatement);
+      
       values.whatsApp && userData.append("whatsApp", values.whatsApp);
       userData.append("id", authHelper.getForm()._id);
 

@@ -5,35 +5,48 @@ import {Document, Page, pdfjs} from 'react-pdf';
 import {Col, Container, Row, Modal, Button, Pagination} from "react-bootstrap";
 import {getUrl} from "../helper/url-helper";
 
-export default function BankStatementView({user, type}){
+export default function PdfView({user, type}){
   pdfjs.GlobalWorkerOptions.workerSrc = 
     `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
-  
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
+  const [file, setFile] = useState({}); 
+  
   const [modalShow, setModalShow] = useState(false);
   const navigate = useNavigate();
 
-  let link = `${getUrl()}/users/get-bankstatement/${user._id}`;
+  let link = `${getUrl()}/users/get-file/bankStatement/${user._id}`;
 
-  function onDocumentLoadSuccess({numPages}) {
+  console.log(type);
+
+  function onDocumentLoadSuccess({numPages}){
     setNumPages(numPages);
   }
 
   if (type === "application/pdf"){
     return (
+      <Container className='pdf-container' >
+        <Row className='justify-content-start'>
+          <Col xs={12} md={6}>
+            <div className='text-light text-center'>
+              <Document file={link} onLoadSuccess={onDocumentLoadSuccess}>
+                <Page pageNumber={pageNumber} className="page" onClick={() => setModalShow(true)}/>
+              </Document>
+            </div>
+          </Col>
+        </Row>
+        <ViewModal
+          show={modalShow}
+          onHide={() => setModalShow(false)}
+          link={link}
+          type={type}
+        />
+      </Container>
+    );
+  } else {
+    return (
       <div>
-        <Container className='pdf-container'>
-          <Row className='justify-content-start'>
-            <Col xs={12} md={6}>
-              <div className='text-light text-center'>
-                <Document file={link} onLoadSuccess={onDocumentLoadSuccess}>
-                  <Page pageNumber={pageNumber} className="page" onClick={() => setModalShow(true)}/>
-                </Document>
-              </div>
-            </Col>
-          </Row>
-        </Container>
+        <img src={link} style={{width: 400, borderRadius: 10, height: 400}} onClick={() => setModalShow(true)}/>
         <ViewModal
           show={modalShow}
           onHide={() => setModalShow(false)}
@@ -43,18 +56,6 @@ export default function BankStatementView({user, type}){
       </div>
     );
   }
-  
-  return (
-    <div>
-      <img src={link} style={{width: 400, borderRadius: 10, height: 400}} onClick={() => setModalShow(true)}/>
-      <ViewModal
-        show={modalShow}
-        onHide={() => setModalShow(false)}
-        link={link}
-        type={type}
-      />
-    </div>
-  );
 }
 
 function ViewModal(props) {
@@ -79,7 +80,7 @@ function ViewModal(props) {
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          BANK STATEMENT
+          IDENTIFICATION
         </Modal.Title>
       </Modal.Header>
       <Modal.Body style={{backgroundColor: "rgb(241 197 71 / 37%)"}}>
