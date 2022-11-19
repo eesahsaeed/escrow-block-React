@@ -1,16 +1,19 @@
 
 import React, {useState} from "react";
 import CurrencyFormat from 'react-currency-format';
+import {getUrl} from "../helper/url-helper";
 
 function Transaction({transact, user}){
   const [selectTransaction, setSelectTransaction] = useState(false)
   const [transaction, setTransaction] = useState(transact);
 
+  console.log(transact);
+
   const handleStatus = name => event => {
 
     async function handle(){
       try{
-        let response = await fetch("https://escrow-block.herokuapp.com/transactions/setStatus", {
+        let response = await fetch(`${getUrl()}/transactions/setStatus`, {
           method: "POST",
           headers: {
             "Accept": "application/json",

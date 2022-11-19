@@ -38,7 +38,8 @@ export default function SellBitCoin({setNoHeaderFooter}) {
     country: "us",
     symbol: getSymbolFromCurrency("USD"),
     name: "US Dollar",
-    walletAddress: ""
+    walletAddress: "",
+    fullFormat: ""
   });
   const [selectCurrency, setSelectCurrency] = useState(false);
   const [errors, setErrors] = useState({
@@ -114,7 +115,9 @@ export default function SellBitCoin({setNoHeaderFooter}) {
   async function handleClick(e){
     e.preventDefault();
 
-    let valid = validate();
+    let valid =  validate();
+
+    let elem = document.getElementById("fullFormat");
 
     if (valid){
       setLoading(true);
@@ -126,7 +129,7 @@ export default function SellBitCoin({setNoHeaderFooter}) {
           "Authorization": authHelper.isAuthenticated().token,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(values)
+        body: JSON.stringify({...values, fullFormat: elem.value})
       })
 
       let rs = await response.json()
@@ -364,18 +367,19 @@ export default function SellBitCoin({setNoHeaderFooter}) {
                   displayType={'text'} 
                   thousandSeparator={true} 
                   prefix={values.symbol} 
-                  renderText={value => (
-                    <>
+                  renderText={value => {
+                    return (
                       <input
                         type="text"
                         placeholder="Bitcoin"
                         className="start__up__container__form__input__box__field"
                         style={{borderColor: "lightgray", color: "lightgray"}}
                         value={value}
+                        id="fullFormat"
                         readOnly
                       />
-                    </>
-                  )} 
+                    )
+                  }}
                 />
               </div>
             </div>

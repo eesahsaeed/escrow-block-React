@@ -86,6 +86,8 @@ export default function SellBitCoin({setNoHeaderFooter}) {
     e.preventDefault();
     setLoading(true);
 
+    let elem = document.getElementById("fullFormat");
+
     let response = await fetch(`${getUrl()}/transactions/sell-bitcoin`, {
       method: "POST",
       headers: {
@@ -93,7 +95,7 @@ export default function SellBitCoin({setNoHeaderFooter}) {
         "Authorization": authHelper.isAuthenticated().token,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(values)
+      body: JSON.stringify({...values, fullFormat: elem.value})
     })
 
     let rs = await response.json()
@@ -302,6 +304,7 @@ export default function SellBitCoin({setNoHeaderFooter}) {
                         className="start__up__container__form__input__box__field"
                         style={{borderColor: "lightgray", color: "lightgray"}}
                         value={value}
+                        id="fullFormat"
                         readOnly
                       />
                     </>
