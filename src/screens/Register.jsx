@@ -8,6 +8,8 @@ import SelectBox from "../components/SelectBox";
 import SelectDropdown from "../components/SelectDropdown";
 import PhoneInput from "../components/PhoneInput";
 import {DotLoader} from "react-spinners";
+import {Alert} from "react-bootstrap";
+import CalculateAge from "calculate-age";
 
 import {getUrl} from "../helper/url-helper";
 import authHelper from "../helper/auth-helper";
@@ -266,33 +268,13 @@ const countries = [
   {name: 'Zimbabwe', code: 'ZW'} 
 ]
 
+if (!authHelper.isFirstDone()){
+  authHelper.resetForm();
+}
+
 export default function RegisterIndividual() {
   const [form, setForm] = useState(authHelper.isFirstDone() ? "second" : "first");
-  const [values, setValues] = useState({
-    userName: "",
-    firstName: "",
-    middleName: "",
-    lastName: "",
-    email: "",
-    preferredCommunication: "Telegram",
-    gender: "Male",
-    country: "",
-    phoneNumber: "",
-    dateOfBirth: "",
-    telegram: "",
-    employmentStatus: "Employed",
-    occupation: "Not Applicable",
-    purposeOfEscrowAccount: "",
-    sourceOfFunds: "Retained Earnings",
-    socialSecurityNumber: "",
-    expectedTransactionSizePerTrade: "",
-    identification: null,
-    proofOfAddress: null,
-    bankStatement: null,
-    dummy: null,
-    password: "",
-    confirmPassword: ""
-  });
+  const [values, setValues] = useState(authHelper.getForm());
   const [secondTabDisabled, setSecondTabDisabled] = useState(!authHelper.isFirstDone());
 
   const [loading, setLoading] = useState(false);
@@ -407,12 +389,7 @@ export default function RegisterIndividual() {
   );
 }
 
-function Form1({
-  values, 
-  setValues, 
-  setForm,
-  setLoading
-}){
+function Form1({values, setValues, setForm, setLoading}){
   const navigate = useNavigate();
 
   const [userNameError, setUserNameError] = useState(false);
@@ -437,12 +414,22 @@ function Form1({
   const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState("");
 
   const [errors, setErrors] = useState({});
+  const [errorMessage, setErrorMessage] = useState({
+    error: false,
+    message: ""
+  });
 
   const onChangeHandler = (e) => {
     let name = e.target.name;
     let value = e.target.value;
 
+    setErrorMessage({
+      error: false,
+      message: ""
+    });
+
     clearError(name);
+    authHelper.updateForm(name, value)
     
     setValues({...values, [name]: value});
   };
@@ -503,6 +490,7 @@ function Form1({
 
   function validateFirstForm(){
     let valid = true;
+    let age = new CalculateAge(values.dateOfBirth, new Date()).getObject();
 
     if (!values.userName){
       valid = false;
@@ -546,16 +534,20 @@ function Form1({
       setPhoneNumberErrorMessage("Phone Number is required");
     }
 
-    if (!values.dateOfBirth || values.dateOfBirth >= new Date()){
+    if (age.years < 18){
       valid = false;
       setDateOfBirthError(true);
-      setDateOfBirthErrorMessage("Select a valid Date Of Birth");
+      setDateOfBirthErrorMessage("You must be at least 18 years old to register");
     }
 
     if (!values.password){
       valid = false;
       setPasswordError(true);
       setPasswordErrorMessage("Invalid Password");
+    } else if (values.password.length < 8){
+      valid = false;
+      setPasswordError(true);
+      setPasswordErrorMessage("Password must be at least 8 characters long");
     }
 
     if (values.password !== values.confirmPassword){
@@ -566,42 +558,35 @@ function Form1({
       setConfirmPasswordErrorMessage("Passwords do not match");
     }
 
+    if (!valid){
+      setErrorMessage({
+        error: true,
+        message: "Validation Error"
+      })
+    }
+
     return valid;
   }
 
   async function SignUp1(event) {
     event.preventDefault();
-    console.log(values);
 
     let valid = validateFirstForm();
 
     if (valid){
       setLoading(true);
 
-      let userData = new FormData();
-      values.userName && userData.append("userName", values.userName);
-      values.firstName && userData.append("firstName", values.firstName);
-      values.lastName && userData.append("lastName", values.lastName);
-      values.middleName && userData.append("middleName", values.middleName);
-      values.email && userData.append("email", values.email);
-      values.gender && userData.append("gender", values.gender);
-      values.country && userData.append("country", values.country);
-      values.phoneNumber && userData.append("phoneNumber", values.phoneNumber);
-      values.dateOfBirth && userData.append("dateOfBirth", values.dateOfBirth);
-      values.password && userData.append("password", values.password);
-      values.confirmPassword && userData.append("confirmPassword", values.confirmPassword);
-
       const abortController = new AbortController();
       const signal = abortController.signal;
 
-      async function register(user){
+      async function register(){
         try{
         let response = await fetch(`${getUrl()}/users/register`, {
             method: "POST",
             headers: {
               "Accept": "application/json"
             },
-            body: user
+            body: JSON.stringify(values)
           })
 
           return await response.json();
@@ -613,14 +598,13 @@ function Form1({
         }
       }
 
-      register(userData).then(data => {
+      register().then(data => {
         console.log(data);
 
         if (data.success){
-          console.log(data.data);
           setLoading(false);
           setForm("second");
-          authHelper.setFirstForm(data.data);
+          authHelper.setForm(data.data);
           window.scrollTo({
             top: 0,
             behavior: "smooth",
@@ -681,6 +665,11 @@ function Form1({
               setConfirmPasswordErrorMessage(data.errors[errors[i]].message);
             }
           }
+
+          setErrorMessage({
+            error: true,
+            message: data["_message"]
+          });
           setLoading(false);
           window.scrollTo({
             top: 0,
@@ -700,6 +689,7 @@ function Form1({
           });
         }
       }).catch(err => {
+        console.log(err);
         setLoading(false);
         window.scrollTo({
           top: 0,
@@ -723,31 +713,17 @@ function Form1({
     if (valid){
       setLoading(true);
 
-      let userData = new FormData();
-      values.userName && userData.append("userName", values.userName);
-      values.firstName && userData.append("firstName", values.firstName);
-      values.lastName && userData.append("lastName", values.lastName);
-      values.middleName && userData.append("middleName", values.middleName);
-      values.email && userData.append("email", values.email);
-      values.gender && userData.append("gender", values.gender);
-      values.country && userData.append("country", values.country);
-      values.phoneNumber && userData.append("phoneNumber", values.phoneNumber);
-      values.dateOfBirth && userData.append("dateOfBirth", values.dateOfBirth);
-      values.password && userData.append("password", values.password);
-      values.confirmPassword && userData.append("confirmPassword", values.confirmPassword);
-      userData.append("id", authHelper.getForm()._id);
-
       const abortController = new AbortController();
       const signal = abortController.signal;
 
-      async function updateUser(user){
+      async function updateUser(){
         try{
         let response = await fetch(`${getUrl()}/users/update-user`, {
             method: "POST",
             headers: {
               "Accept": "application/json"
             },
-            body: user
+            body: JSON.stringify(authHelper.getForm())
           })
 
           return await response.json();
@@ -759,14 +735,14 @@ function Form1({
         }
       }
 
-      updateUser(userData).then(data => {
+      updateUser().then(data => {
         console.log(data);
 
         if (data.success){
           console.log(data.data);
           setLoading(false);
           setForm("second");
-          authHelper.setFirstForm(data.data);
+          authHelper.setForm(data.data);
           window.scrollTo({
             top: 0,
             behavior: "smooth",
@@ -860,35 +836,13 @@ function Form1({
     }
   }
 
-  let {
-    userName, 
-    firstName,
-    lastName,
-    middleName,
-    email,
-    gender,
-    country,
-    phoneNumber,
-    dateOfBirth
-  } = authHelper.getForm();
-
-  useEffect(() => {
-    setValues({
-      ...values, 
-      userName, 
-      firstName,
-      lastName,
-      middleName,
-      email,
-      gender,
-      country,
-      phoneNumber, 
-      dateOfBirth: new Date(dateOfBirth),
-    });
-  }, []);
-
   return (
     <form style={{position: "relative"}}>
+      {errorMessage.error && <Alert variant={"danger"} className="text-center">
+        <span style={{
+          fontWeight: "bold"
+        }}>{errorMessage.message}</span>
+      </Alert>}
       <div className="input_container">
         <InputField 
           name="userName" 
@@ -898,7 +852,7 @@ function Form1({
           placeholder="User Name"
           error={userNameError}
           errorMessage={userNameErrorMessage}
-          defaultValue={userName ? userName : ""}
+          defaultValue={values.userName}
         />
       </div>
       <div className="input_container">
@@ -910,7 +864,7 @@ function Form1({
           placeholder="First Name"
           error={firstNameError}
           errorMessage={firstNameErrorMessage}
-          defaultValue={firstName ? firstName : ""}
+          defaultValue={values.firstName}
         />
       </div>
       <div className="input_container">
@@ -922,7 +876,7 @@ function Form1({
           placeholder="Last Name"
           error={lastNameError}
           errorMessage={lastNameErrorMessage}
-          defaultValue={lastName ? lastName : ""}
+          defaultValue={values.lastName}
         />
       </div>
       <div className="input_container">
@@ -934,7 +888,7 @@ function Form1({
           placeholder="Middle Name (Optional)"
           error={false}
           errorMessage={""}
-          defaultValue={middleName ? middleName : ""}
+          defaultValue={values.middleName}
         />
       </div>
       <div className="input_container">
@@ -946,7 +900,7 @@ function Form1({
           placeholder="Email"
           error={emailError}
           errorMessage={emailErrorMessage}
-          defaultValue={email ? email : ""}
+          defaultValue={values.email}
         />
       </div>
       <div className="input_container">
@@ -958,7 +912,7 @@ function Form1({
           placeholder="Gender"
           error={genderError}
           errorMessage={genderErrorMessage}
-          defaultValue={gender ? gender : ""}
+          defaultValue={values.gender}
         >
           <option value="Male">Male</option>
           <option value="Female">Female</option>
@@ -973,7 +927,7 @@ function Form1({
           placeholder="Gender"
           error={countryError}
           errorMessage={countryErrorMessage}
-          defaultValue={country ? country : ""}
+          defaultValue={values.country}
         >
           {countries.map((c, i) => (
             <option value={c.name}>{c.name}</option>
@@ -997,7 +951,7 @@ function Form1({
           type="date" 
           onChange={onChangeHandler} 
           label="Date Of Birth"
-          value={values.dateOfBirth}
+          value={new Date(values.dateOfBirth)}
           error={dateOfBirthError}
           errorMessage={dateOfBirthErrorMessage}
         />
@@ -1054,12 +1008,7 @@ function Form1({
   )
 }
 
-function Form2({
-  values, 
-  setValues, 
-  setForm,
-  setLoading
-}){
+function Form2({values, setValues, setForm, setLoading}){
   const navigate = useNavigate();
 
   const [preferredCommuninicationError, setPreferredCommunicationError] = useState(false);
@@ -1112,6 +1061,8 @@ function Form2({
         value = e.target.value;
         break;
     }
+
+    authHelper.updateForm(name, value)
 
     setValues({...values, [name]: value});
   };
@@ -1267,46 +1218,28 @@ function Form2({
     return valid;
   }
 
-  async function SignUp2(event) {
+  async function SignUp2(event){
     event.preventDefault();
 
-    console.log(authHelper.getForm()._id);
-
-    let valid = validateSecondForm();
+    let valid = true //validateSecondForm();
 
     if (valid){
       setLoading(true);
-
-      let userData = new FormData();
-      values.preferredCommunication && userData.append("preferredCommunication", values.preferredCommunication);
-      values.telegram && userData.append("telegram", values.telegram);
-      values.employmentStatus && userData.append("employmentStatus", values.employmentStatus);
-      values.occupation && userData.append("occupation", values.occupation);
-      values.purposeOfEscrowAccount && userData.append("purposeOfEscrowAccount", values.purposeOfEscrowAccount);
-      values.sourceOfFunds && userData.append("sourceOfFunds", values.sourceOfFunds);
-      values.expectedTransactionSizePerTrade && userData.append("expectedTransactionSizePerTrade", values.expectedTransactionSizePerTrade);
-      values.address && userData.append("address", values.address);
-      
-      values.identification && userData.append("identification", values.identification);
-      
-      values.proofOfAddress && userData.append("proofOfAddress", values.proofOfAddress);
-      
-      values.bankStatement && userData.append("bankStatement", values.bankStatement);
-      
-      values.whatsApp && userData.append("whatsApp", values.whatsApp);
-      userData.append("id", authHelper.getForm()._id);
 
       const abortController = new AbortController();
       const signal = abortController.signal;
 
       async function register(user){
         try{
-        let response = await fetch(`${getUrl()}/users/second-register`, {
+        let response = await fetch(`${getUrl()}/users/update-user`, {
             method: "POST",
             headers: {
               "Accept": "application/json"
             },
-            body: user
+            body: JSON.stringify({
+              ...values,
+              id: authHelper.getForm().id
+            })
           })
 
           return await response.json();
@@ -1318,13 +1251,13 @@ function Form2({
         }
       }
 
-      register(userData).then(data => {
+      register().then(data => {
         console.log(data);
 
         if (data.success){
           setLoading(false);
           authHelper.clearForm();
-          navigate(`/welcome/${data.user["_doc"].firstName}`);
+          navigate(`/welcome/${data.data.firstName}`);
           window.scrollTo({
             top: 0,
             behavior: "smooth",
@@ -1363,20 +1296,13 @@ function Form2({
           placeholder="Preferred Communication"
           error={preferredCommuninicationError}
           errorMessage={preferredCommuninicationErrorMessage}
+          defaultValue={values.preferredCommunication}
         >
           <option value="Telegram">Telegram</option>
         </InputField>
       </div>
       <div className="input_container">
-        {values.preferredCommunication === "WhatsApp" ? <InputField 
-          name="whatsApp" 
-          type="text" 
-          onChange={onChangeHandler} 
-          label="WhatsApp" 
-          placeholder="WhatsApp"
-          error={whatsAppError}
-          errorMessage={whatsAppErrorMessage}
-        /> : <InputField 
+        <InputField 
           name="telegram" 
           type="text" 
           onChange={onChangeHandler} 
@@ -1384,7 +1310,8 @@ function Form2({
           placeholder="Telegram"
           error={telegramError}
           errorMessage={telegramErrorMessage}
-        />}
+          defaultValue={values.telegram}
+        />
       </div>
       <div className="input_container">
         <InputField 
@@ -1395,6 +1322,7 @@ function Form2({
           placeholder="Address"
           error={addressError}
           errorMessage={addressErrorMessage}
+          defaultValue={values.address}
         />
       </div>
       <div className="input_container">
@@ -1406,6 +1334,7 @@ function Form2({
           placeholder="Employment Status"
           error={employmentStatusError}
           errorMessage={employmentStatusErrorMessage}
+          defaultValue={values.employmentStatus}
         >
           <option value=""> -- Employment Status -- </option>
           <option value="Employed">Employed</option>
@@ -1423,6 +1352,7 @@ function Form2({
           placeholder="Source Of Funds"
           error={sourceOfFundsError}
           errorMessage={sourceOfFundsErrorMessage}
+          defaultValue={values.sourceOfFunds}
         >
           <option value=""> -- Source Of Funds -- </option>
           <option value="Capital/Savings">Capital/Savings</option>
@@ -1442,6 +1372,7 @@ function Form2({
           placeholder="Occupation"
           error={occupationError}
           errorMessage={occupationErrorMessage}
+          defaultValue={values.occupation}
         >
           {getOccupations()}
         </InputField>
@@ -1455,6 +1386,7 @@ function Form2({
           placeholder="Please state your purpose of opening an EscrowBlock Account"
           error={purposeOfEscrowAccountError}
           errorMessage={purposeOfEscrowAccountErrorMessage}
+          defaultValue={values.purposeOfEscrowAccount}
         />
       </div>
       <div className="input_container">
@@ -1466,6 +1398,7 @@ function Form2({
           placeholder="Social Security Number (Applicable to US Citizens)"
           error={socialSecurityNumberError}
           errorMessage={socialSecurityNumberErrorMessage}
+          defaultValue={values.socialSecurityNumber}
         />
       </div>
       <div className="input_container">
@@ -1477,6 +1410,7 @@ function Form2({
           placeholder="Expected Transaction Size Per Trade"
           error={expectedTransactionSizePerTradeError}
           errorMessage={expectedTransactionSizePerTradeErrorMessage}
+          defaultValue={values.expectedTransactionSizePerTrade}
         />
       </div>
       <div className="input_container">

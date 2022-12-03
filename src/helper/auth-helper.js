@@ -26,44 +26,97 @@ function clearUser( cb ){
   cb();
 }
 
-function setFirstForm(values){
-  localStorage.setItem("firstForm", JSON.stringify(values));
+function setForm(values){
+  localStorage.setItem("form", JSON.stringify(values));
 }
 
 function isFirstDone(){
-  if (localStorage.getItem("firstForm")){
-    return JSON.parse(localStorage.getItem("firstForm"))["_doc"].firstForm;
+  if (localStorage.getItem("form")){
+    return JSON.parse(localStorage.getItem("form")).firstForm;
   }else{
     return false;
   }
 }  
 
 function getForm(){
-  if (localStorage.getItem("firstForm")){
-    return JSON.parse(localStorage.getItem("firstForm"))["_doc"];
+  if (localStorage.getItem("form")){
+    return JSON.parse(localStorage.getItem("form"));
   }else{
     return {};
   }
 }
 
+function updateForm(name, value){
+  let userData = JSON.parse(localStorage.getItem("form"));
+  let tempData = {...userData, [name]: value};
+  localStorage.setItem("form", JSON.stringify(tempData));
+}
+
 function clearForm(){
   if (typeof window !== "undefined"){
     localStorage.setItem("firstForm", JSON.stringify({
-      _doc:{
-        userName: "", 
+        userName: "",
         firstName: "",
-        lastName: "",
+        address: "",
         middleName: "",
+        lastName: "",
         email: "",
+        preferredCommunication: "Telegram",
         gender: "Male",
         country: "",
         phoneNumber: "",
         dateOfBirth: new Date(),
+        telegram: "",
+        employmentStatus: "Employed",
+        occupation: "Not Applicable",
+        purposeOfEscrowAccount: "",
+        sourceOfFunds: "",
+        socialSecurityNumber: "",
+        expectedTransactionSizePerTrade: "",
+        identification: "",
+        proofOfAddress: "",
+        bankStatement: "",
+        forgotPasswordToken: "",
+        password: "",
+        confirmPassword: "",
         firstForm: false,
-        _id: ""
-      }
-    }));
+        id: ""
+      })
+    );
   }
 }
 
-export default {authenticate, isAuthenticated, clearUser, setFirstForm, isFirstDone, clearForm, getForm};
+function resetForm() {
+  localStorage.setItem("form", JSON.stringify({
+    userName: "",
+    firstName: "",
+    address: "",
+    middleName: "",
+    lastName: "",
+    email: "",
+    preferredCommunication: "Telegram",
+    gender: "Male",
+    country: "",
+    phoneNumber: "",
+    dateOfBirth: new Date(),
+    telegram: "",
+    employmentStatus: "Employed",
+    occupation: "Not Applicable",
+    purposeOfEscrowAccount: "",
+    sourceOfFunds: "",
+    socialSecurityNumber: "",
+    expectedTransactionSizePerTrade: "",
+    identification: "",
+    proofOfAddress: "",
+    bankStatement: "",
+    transactions: [],
+    forgotPasswordToken: "",
+    password: "",
+    confirmPassword: "",
+    firstForm: false,
+    secondForm: false,
+    id: ""
+  }));
+}
+
+export default {authenticate, isAuthenticated, clearUser, setForm, isFirstDone, clearForm, getForm, updateForm, resetForm};
