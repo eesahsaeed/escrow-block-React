@@ -109,7 +109,7 @@ function resetForm() {
     identification: "",
     proofOfAddress: "",
     bankStatement: "",
-    transactions: [],
+    transactions: "",
     forgotPasswordToken: "",
     password: "",
     confirmPassword: "",

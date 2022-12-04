@@ -10,10 +10,22 @@ import PhoneInput from "../components/PhoneInput";
 import {DotLoader} from "react-spinners";
 import {Alert} from "react-bootstrap";
 import CalculateAge from "calculate-age";
+import AWS from "aws-sdk";
+import {v4} from "uuid";
 
 import {getUrl} from "../helper/url-helper";
 import authHelper from "../helper/auth-helper";
 import InputField from "../components/InputField";
+
+AWS.config.update({
+  accessKeyId: 'AKIAYICRR2EYF7H6S6BG',
+  secretAccessKey: '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'
+});
+
+const s3 = new AWS.S3({
+  params: { Bucket: "escrow-block"},
+  region: "us-east-1",
+});
 
 const override = {
   display: "block",
@@ -572,6 +584,7 @@ function Form1({values, setValues, setForm, setLoading}){
     event.preventDefault();
 
     let valid = validateFirstForm();
+    console.log(values)
 
     if (valid){
       setLoading(true);
@@ -978,7 +991,8 @@ function Form1({values, setValues, setForm, setLoading}){
           errorMessage={confirmPasswordErrorMessage}
         />
       </div>
-      <div className="check2">
+      {!authHelper.isFirstDone() && <>
+        <div className="check2">
         <InputField 
           name="checkbox1"
           type="checkbox" 
@@ -1004,6 +1018,7 @@ function Form1({values, setValues, setForm, setLoading}){
         onClick={SignUp1}
       >Register Now</button>}
       </div>
+      </> }
     </form>
   )
 }
@@ -1037,6 +1052,10 @@ function Form2({values, setValues, setForm, setLoading}){
   const [socialSecurityNumberErrorMessage, setSocialSecurityNumberErrorMessage] = useState("");
   const [bankStatementError, setBankStatementError] = useState(false);
   const [bankStatementErrorMessage, setBankStatementErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState({
+    error: false,
+    message: ""
+  })
 
   const onChangeHandler = (e) => {
     let name = e.target.name;
@@ -1218,18 +1237,43 @@ function Form2({values, setValues, setForm, setLoading}){
     return valid;
   }
 
+  async function uploadFiles(){
+    const arr = ["identification", "proofOfAddress", "bankStatement"]; 
+    let obj = {identification: {}, proofOfAddress: {}, bankStatement: {}};
+
+    for (let i = 0; i < arr.length; i++){
+      const params = {
+        ACL: 'public-read',
+        Body: values[arr[i]],
+        Bucket: "escrow-block",
+        Key: `${v4()}-${values[arr[i]].name}`
+      };
+
+      const uploadedImage = await s3.upload(params).promise()
+      obj[arr[i]] = {
+        url: uploadedImage.Location,
+        contentType: values[arr[i]].type,
+        key: uploadedImage.Key
+      }
+    }
+
+    return obj;
+  }
+
   async function SignUp2(event){
     event.preventDefault();
 
-    let valid = true //validateSecondForm();
+    let valid = validateSecondForm();
 
     if (valid){
       setLoading(true);
 
+      let obj = await uploadFiles();
+
       const abortController = new AbortController();
       const signal = abortController.signal;
 
-      async function register(user){
+      async function register(){
         try{
         let response = await fetch(`${getUrl()}/users/update-user`, {
             method: "POST",
@@ -1238,7 +1282,8 @@ function Form2({values, setValues, setForm, setLoading}){
             },
             body: JSON.stringify({
               ...values,
-              id: authHelper.getForm().id
+              ...obj,
+              id: authHelper.getForm().id,
             })
           })
 
@@ -1262,7 +1307,11 @@ function Form2({values, setValues, setForm, setLoading}){
             top: 0,
             behavior: "smooth",
           });
-        } else {
+        } else if (data.errors){
+          setErrorMessage({
+            error: true,
+            message: data["_message"]
+          });
           console.log(data);
           setLoading(false);
           window.scrollTo({
@@ -1271,6 +1320,7 @@ function Form2({values, setValues, setForm, setLoading}){
           });
         }
       }).catch(err => {
+        console.log(err);
         setLoading(false);
         window.scrollTo({
           top: 0,
@@ -1287,6 +1337,11 @@ function Form2({values, setValues, setForm, setLoading}){
 
   return (
     <form>
+      {errorMessage.error && <Alert variant={"danger"} className="text-center">
+        <span style={{
+          fontWeight: "bold"
+        }}>{errorMessage.message}</span>
+      </Alert>}
       <div className="input_container">
         <InputField 
           name="preferredCommunication" 
