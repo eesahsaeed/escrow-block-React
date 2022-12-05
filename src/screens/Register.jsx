@@ -1301,7 +1301,7 @@ function Form2({values, setValues, setForm, setLoading}){
 
         if (data.success){
           setLoading(false);
-          authHelper.clearForm();
+          authHelper.resetForm();
           navigate(`/welcome/${data.data.firstName}`);
           window.scrollTo({
             top: 0,

@@ -52,40 +52,6 @@ function updateForm(name, value){
   localStorage.setItem("form", JSON.stringify(tempData));
 }
 
-function clearForm(){
-  if (typeof window !== "undefined"){
-    localStorage.setItem("firstForm", JSON.stringify({
-        userName: "",
-        firstName: "",
-        address: "",
-        middleName: "",
-        lastName: "",
-        email: "",
-        preferredCommunication: "Telegram",
-        gender: "Male",
-        country: "",
-        phoneNumber: "",
-        dateOfBirth: new Date(),
-        telegram: "",
-        employmentStatus: "Employed",
-        occupation: "Not Applicable",
-        purposeOfEscrowAccount: "",
-        sourceOfFunds: "",
-        socialSecurityNumber: "",
-        expectedTransactionSizePerTrade: "",
-        identification: "",
-        proofOfAddress: "",
-        bankStatement: "",
-        forgotPasswordToken: "",
-        password: "",
-        confirmPassword: "",
-        firstForm: false,
-        id: ""
-      })
-    );
-  }
-}
-
 function resetForm() {
   localStorage.setItem("form", JSON.stringify({
     userName: "",
@@ -119,4 +85,4 @@ function resetForm() {
   }));
 }
 
-export default {authenticate, isAuthenticated, clearUser, setForm, isFirstDone, clearForm, getForm, updateForm, resetForm};
+export default {authenticate, isAuthenticated, clearUser, setForm, isFirstDone, getForm, updateForm, resetForm};

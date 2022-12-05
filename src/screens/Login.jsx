@@ -1,10 +1,56 @@
 
+
+
+
+
+/*
+
+async function login(request){
+  let body = JSON.parse(request.body);
+
+  try{
+    const params = {
+      TableName: "users-table",
+      FilterExpression: "email = :e",
+      ExpressionAttributeValues: {
+        ":e": body.email
+      }
+    };
+
+    let tempUsers = await docClient.scan(params).promise()
+    let user = tempUsers.Items[0];
+
+    console.log("login user ", user);
+    let token = jwt.sign({email: body.email}, "wole-escrow-block");
+
+    console.log("token is ",token);
+
+    let password = await bcrypt.compare(body.password, user.password);
+    console.log("password ", password);
+
+    return tempUsers.Items;
+  } catch(err){
+    console.log(err);
+    return err;
+  }
+}
+
+*/
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import InputBox from "../components/InputBox";
 import loginSvg from "../assets/loginSvg.svg";
 import telegram from "../assets/telegram.png";
 import { getUrl } from "../helper/url-helper";
+import {Alert} from "react-bootstrap";
+
+import authHelper from "../helper/auth-helper";
 
 export default function Login({ setNoHeaderFooter }) {
   const [errors, setErrors] = useState({});
@@ -31,11 +77,10 @@ export default function Login({ setNoHeaderFooter }) {
     event.preventDefault();
     
     async function signIn(data){
-      let user = await fetch(`${getUrl()}/users/signin`, {
+      let user = await fetch(`${getUrl()}/users/login`, {
         method: "POST",
         headers: {
-          "Accept": "application/json",
-          'Content-Type': 'application/json'
+          "Accept": "application/json"
         },
         body: JSON.stringify(data)
       })
@@ -44,12 +89,17 @@ export default function Login({ setNoHeaderFooter }) {
     }
 
     signIn(values).then(user => {
+      console.log(user)
       if (user.error){
         window.scrollTo({
           top: 0,
           behavior: "smooth",
         });
         setErrors(user)
+
+        if (user.errors.incomplete){
+          authHelper.setForm(errors.user);
+        }
       } else {
         localStorage.setItem("user", JSON.stringify(user));
         navigate("/dashboard");
@@ -77,7 +127,9 @@ export default function Login({ setNoHeaderFooter }) {
               paddingTop: "10px",
               backgroundColor: "#ff8080",
               borderRadius: "5px"
-            }}><h3>{errors.error}</h3></div>}
+            }}>
+              <h3>{errors.error}</h3> {errors.incomplete && <Link className="login-link" to="/register">Click here to finish</Link>}
+            </div>}
           </div>
 
           <div className="register__section__forms__content__inputs__one">
