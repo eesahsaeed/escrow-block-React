@@ -88,20 +88,20 @@ export default function Login({ setNoHeaderFooter }) {
       return await user.json();
     }
 
-    signIn(values).then(user => {
-      console.log(user)
-      if (user.error){
+    signIn(values).then(data => {
+      console.log(data)
+      if (data.error){
         window.scrollTo({
           top: 0,
           behavior: "smooth",
         });
-        setErrors(user)
+        setErrors(data)
 
-        if (user.errors.incomplete){
-          authHelper.setForm(errors.user);
+        if (data.incomplete){
+          authHelper.setForm(data.user);
         }
       } else {
-        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("user", JSON.stringify(data));
         navigate("/dashboard");
       }
     }).catch(err => {

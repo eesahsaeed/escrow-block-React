@@ -5,7 +5,7 @@ import {Document, Page, pdfjs} from 'react-pdf';
 import {Col, Container, Row, Modal, Button, Pagination} from "react-bootstrap";
 import {getUrl} from "../helper/url-helper";
 
-export default function PdfView({user, type}){
+export default function PdfView({user}){
   pdfjs.GlobalWorkerOptions.workerSrc = 
     `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
   const [numPages, setNumPages] = useState(null);
@@ -14,8 +14,11 @@ export default function PdfView({user, type}){
   const [modalShow, setModalShow] = useState(false);
   const navigate = useNavigate();
 
-  let link = `${getUrl()}/users/get-file/identification/${user._id}`;
+  let identification = JSON.parse(user.identification);
 
+  const link = identification.url;
+  const type = identification.contentType;
+ 
   function onDocumentLoadSuccess({numPages}){
     setNumPages(numPages);
   }

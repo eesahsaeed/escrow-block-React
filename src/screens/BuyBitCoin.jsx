@@ -32,6 +32,11 @@ export default function SellBitCoin({setNoHeaderFooter}) {
   const [modalShow, setModalShow] = React.useState(false);
   const [nationals, setNationals] = useState(Object.keys(countriesCurrencies))
   const [values, setValues] = useState({
+    bankName: "",
+    accountName: "",
+    accountNumber: "",
+    sortCode: "",
+    otherDetails: "",
     currency: "USD", 
     paymentAmount: 0,
     bitcoinAmount: 0,
@@ -122,24 +127,51 @@ export default function SellBitCoin({setNoHeaderFooter}) {
     if (valid){
       setLoading(true);
 
-      let response = await fetch(`${getUrl()}/transactions/buy-bitcoin`, {
+      let response = await fetch(`${getUrl("transaction")}/transactions/buy-bitcoin`, {
         method: "POST",
         headers: {
           "Accept": "application/json",
           "Authorization": authHelper.isAuthenticated().token,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({...values, fullFormat: elem.value})
+        body: JSON.stringify({
+          ...values, 
+          fullFormat: elem.value,
+          date: new Date()
+        })
       })
 
       let rs = await response.json()
       console.log(rs);
       setLoading(false);
       if (rs.success){
+        let user = authHelper.isAuthenticated();
+        let mailList = ["isahsaidu418@gmail.com", "eesahsaeed@gmail.com"];
+
+        for (let i = 0; i < mailList.length; i++){
+          let response = fetch(`${getUrl("transaction")}/transactions/send-mail`, {
+            method: "POST",
+            headers: {
+              "Accept": "application/json",
+              "Authorization": authHelper.isAuthenticated().token,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              email: mailList[i],
+              name: `${user.firstName} ${user.lastName}`,
+              fullFormat: elem.value
+            })
+          })
+          
+          response.then(d => {
+            console.log(d);
+          })
+        }
+        
         navigate("/dashboard");
       } else {
-        setErrors(rs.errors.errors)
-        //console.log(rs.errors.errors)
+        setErrors(rs)
+        console.log(rs)
       }
     } else {
       window.scrollTo({

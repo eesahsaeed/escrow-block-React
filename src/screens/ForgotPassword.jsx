@@ -62,7 +62,7 @@ export default function ForgotPassword({setNoHeaderFooter}) {
       setLoading(true);
 
       try{
-        let response = await fetch(`${getUrl()}/users/forgotPassword`, {
+        let response = await fetch(`${getUrl()}/users/forgot-password`, {
           method: "POST",
           headers: {
             "Accept": "application/json",
@@ -96,7 +96,7 @@ export default function ForgotPassword({setNoHeaderFooter}) {
       setLoading(true);
       
       try{
-        let response = await fetch(`${getUrl()}/users/verifyToken`, {
+        let response = await fetch(`${getUrl()}/users/verify-token`, {
           method: "POST",
           headers: {
             "Accept": "application/json",

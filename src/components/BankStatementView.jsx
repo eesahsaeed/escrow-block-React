@@ -5,7 +5,7 @@ import {Document, Page, pdfjs} from 'react-pdf';
 import {Col, Container, Row, Modal, Button, Pagination} from "react-bootstrap";
 import {getUrl} from "../helper/url-helper";
 
-export default function PdfView({user, type}){
+export default function PdfView({user}){
   pdfjs.GlobalWorkerOptions.workerSrc = 
     `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
   const [numPages, setNumPages] = useState(null);
@@ -15,7 +15,10 @@ export default function PdfView({user, type}){
   const [modalShow, setModalShow] = useState(false);
   const navigate = useNavigate();
 
-  let link = `${getUrl()}/users/get-file/bankStatement/${user._id}`;
+  let bankStatement = JSON.parse(user.bankStatement);
+
+  const link = bankStatement.url;
+  const type = bankStatement.contentType;
 
   console.log(type);
 
@@ -80,7 +83,7 @@ function ViewModal(props) {
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          IDENTIFICATION
+          BANK STATEMENT
         </Modal.Title>
       </Modal.Header>
       <Modal.Body style={{backgroundColor: "rgb(241 197 71 / 37%)"}}>

@@ -177,21 +177,18 @@ function GeneralInfoForm({user, index, drop}){
               <h2 className="my-3">Identification</h2>
               <IdentificationView 
                 user={user} 
-                type={user.identification.contentType}
               />
             </Col>
             <Col sm={4} className="mb-3 ms-6" style={{width: "40%"}}>
               <h2 className="my-3">Proof Of Address</h2>
               <POAView 
                 user={user} 
-                type={user.proofOfAddress.contentType}
               />
             </Col>
             <Col sm={4} className="mb-3" style={{width: "40%"}}>
               <h2 className="my-3">Bank Statement</h2>
               <BankStatementView 
                 user={user}
-                type={user.bankStatement.contentType}
               />
             </Col>
           </Row>
@@ -211,7 +208,7 @@ function TransactionEntry() {
       if (user){
         if (user.role === "admin"){
           try{
-            let response = await fetch(`${getUrl()}/transactions/allTransactions`, {
+            let response = await fetch(`${getUrl("transaction")}/transactions/all-transactions`, {
               method: "GET",
               headers: {
                 "Accept": "application/json",
@@ -226,7 +223,7 @@ function TransactionEntry() {
           }
         } else {
           try{
-            let response = await fetch(`${getUrl()}/transactions/userTransactions/`, {
+            let response = await fetch(`${getUrl("transaction")}/transactions/user-transactions/`, {
               method: "GET",
               headers: {
                 "Accept": "application/json",
@@ -236,7 +233,6 @@ function TransactionEntry() {
 
             let rs = await response.json();
             setTransactions(rs)
-            console.log(rs);
           } catch(err){
             console.log(err);
           }
@@ -292,7 +288,7 @@ function UserEntry() {
       if (user){
         if (user.role === "admin"){
           try{
-            let response = await fetch(`${getUrl()}/users/allUsers`, {
+            let response = await fetch(`${getUrl()}/users/all-users`, {
               method: "GET",
               headers: {
                 "Accept": "application/json",
@@ -301,7 +297,6 @@ function UserEntry() {
             })
 
             let users = await response.json();
-            console.log(users);
             setUsers(users)
           } catch(err){
             console.log(err);

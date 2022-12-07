@@ -1283,6 +1283,8 @@ function Form2({values, setValues, setForm, setLoading}){
             body: JSON.stringify({
               ...values,
               ...obj,
+              firstForm: true,
+              secondForm: true,
               id: authHelper.getForm().id,
             })
           })

@@ -15,15 +15,29 @@ export default function ForgotPassword({ setNoHeaderFooter }) {
     password: "",
     confirmPassword: ""
   })
+  const [passwordError, setPasswordErrorMessage] = useState({
+    error: false,
+    errorMessage: ""
+  })
+  const [confirmPasswordError, setConfirmPasswordErrorMessage] = useState({
+    error: false,
+    errorMessage: ""
+  })
   
   const handleChange = name => event => {
     setValues({...values, [name]: event.target.value});
   }
 
+  function validate(){
+    let valid = true;
+
+    return valid;
+  }
+
   function handleClick(){
     async function handle(){
       try{
-        let response = await fetch(`${getUrl()}/users/changePassword`, {
+        let response = await fetch(`${getUrl()}/users/change-password`, {
           method: "POST",
           headers: {
             "Accept": "application/json",
@@ -35,6 +49,8 @@ export default function ForgotPassword({ setNoHeaderFooter }) {
         let rs = await response.json();
         if (rs.success){
           navigate(`/login`)
+        } else {
+          console.log(rs)
         }
       } catch(err){
         console.log(err);

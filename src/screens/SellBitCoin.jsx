@@ -74,7 +74,8 @@ export default function SellBitCoin({setNoHeaderFooter}) {
         let value = await Convert(rs.data[0].price_usd).from("USD").to(values.currency);
         setValues({
           ...values,
-          paymentAmount: value
+          paymentAmount: value,
+          date: new Date()
         })
       }
 
@@ -88,7 +89,7 @@ export default function SellBitCoin({setNoHeaderFooter}) {
 
     let elem = document.getElementById("fullFormat");
 
-    let response = await fetch(`${getUrl()}/transactions/sell-bitcoin`, {
+    let response = await fetch(`${getUrl("transaction")}/transactions/sell-bitcoin`, {
       method: "POST",
       headers: {
         "Accept": "application/json",
@@ -102,10 +103,32 @@ export default function SellBitCoin({setNoHeaderFooter}) {
     console.log(rs);
     setLoading(false);
     if (rs.success){
+      let user = authHelper.isAuthenticated();
+      let mailList = ["isahsaidu418@gmail.com", "eesahsaeed@gmail.com"];
+
+      for (let i = 0; i < mailList.length; i++){
+        let response = fetch(`${getUrl("transaction")}/transactions/send-mail`, {
+          method: "POST",
+          headers: {
+            "Accept": "application/json",
+            "Authorization": authHelper.isAuthenticated().token,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: mailList[i],
+            name: `${user.firstName} ${user.lastName}`,
+            fullFormat: elem.value
+          })
+        })
+        
+        response.then(d => {
+          console.log(d);
+        })
+      }
+      
       navigate("/dashboard");
     } else {
-      setErrors(rs.errors.errors)
-      //console.log(rs.errors.errors)
+      setErrors(rs)
     }
   }
 

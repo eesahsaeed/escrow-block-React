@@ -7,26 +7,28 @@ function Transaction({transact, user}){
   const [selectTransaction, setSelectTransaction] = useState(false)
   const [transaction, setTransaction] = useState(transact);
 
-  console.log(transact);
-
   const handleStatus = name => event => {
 
     async function handle(){
       try{
-        let response = await fetch(`${getUrl()}/transactions/setStatus`, {
+        let response = await fetch(`${getUrl("transaction")}/transactions/set-status`, {
           method: "POST",
           headers: {
             "Accept": "application/json",
             "Authorization": user.token,
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({status: name, id: transaction._id})
+          body: JSON.stringify({status: name, id: transaction.id})
         })
 
         let rs = await response.json();
 
-        setTransaction({...transaction, status: rs.status});
-        setSelectTransaction(false);
+        if (rs.success){
+          setTransaction({...transaction, currentStatus: rs.currentStatus});
+          setSelectTransaction(false);
+        } else {
+          console.log(rs)
+        }
       } catch(err){
         console.log(err);
       }
@@ -44,7 +46,7 @@ function Transaction({transact, user}){
           {new Date(transaction.date).toLocaleDateString()}
         </div>
         <div className="register__section__forms__content__history__details__entry">
-          {transaction._id}
+          {transaction.id}
         </div>
         <div className="register__section__forms__content__history__details__entry">
           {transaction.bitcoinAmount}
@@ -56,7 +58,7 @@ function Transaction({transact, user}){
           {transaction.transactionType}
         </div>
         <div className="register__section__forms__content__history__details__entry">
-          {transaction.status}
+          {transaction.currentStatus}
         </div>
       </div>
 
